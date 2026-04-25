@@ -1,0 +1,111 @@
+% chetref_test.tex
+% Test file for chetref.bst: exercises all entry types and edge cases.
+% Compile with: pdflatex chetref_test && bibtex chetref_test && pdflatex chetref_test && pdflatex chetref_test
+
+\documentclass[12pt]{article}
+\usepackage[mcite]{chet}
+
+\definecolor{forestgreen}{rgb}{0.0, 0.27, 0.13}
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+\hypersetup{colorlinks,
+           breaklinks=true,
+           linkcolor={forestgreen},
+           citecolor={darkblue},
+           urlcolor={darkred},
+           pdftitle={Test file for chetref.bst},
+           pdfdisplaydoctitle
+}
+
+\title{Test file for \texttt{chetref.bst}}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Articles}
+
+\subsection{Standard cases}
+
+Standard article with three authors, journal, eprint, primaryClass, and explicit doi~\cite{standard}.
+
+Collaboration only (no author field); should show ``ATLAS Collaboration'' with no trailing comma~\cite{collab_only}.
+
+Collaboration and individual authors; should show ``CMS Collaboration, S.~Chatrchyan \& V.~Khachatryan et~al.''~\cite{collab_and_author}.
+
+Many authors ending with \texttt{others}, producing et~al.~\cite{many_authors}.
+
+\subsection{arXiv identifiers}
+
+Preprint with no journal entry: only eprint and primaryClass should appear~\cite{preprint_only}.
+
+Old-style arXiv identifier (\texttt{hep-th/9711200}): no \texttt{arXiv:} prefix should be added, no primaryClass bracket~\cite{old_arxiv}.
+
+New-style arXiv ID with explicit \texttt{arXiv:} prefix in the eprint field: prefix should be stripped for the URL but preserved in the display text~\cite{arxiv_prefix}.
+
+\subsection{JHEP DOI inference}
+
+JHEP old DOI inference: year starts with \texttt{199}, 2-digit volume;\newline expected DOI \texttt{10.1088/1126-6708/1999/05/021}~\cite{jhep_old_doi}.
+
+JHEP new DOI inference: year starts with \texttt{201}, 2-digit volume;\newline expected DOI \texttt{10.1007/JHEP08(2012)034}~\cite{jhep_new_doi}.
+
+JHEP with explicit \texttt{doi} field: inference should be suppressed and the provided DOI used as-is~\cite{jhep_explicit_doi}.
+
+\subsection{Optional fields}
+
+Article with both \texttt{url} and \texttt{note} fields~\cite{with_url_note}.
+
+\section{Books}
+
+Standard book with author, publisher, and address~\cite{book_author}.
+
+Edited volume with \texttt{editor} but no \texttt{author}: editor should appear in the attribution slot~\cite{book_editor}.
+
+Book with \texttt{eprint} and \texttt{edition}~\cite{book_eprint}.
+
+\section{Inbook, Inproceedings, Conference, Incollection}
+
+\texttt{inbook}: chapter in a book with pages and publisher~\cite{inbook_example}.
+
+\texttt{inproceedings}: with editor and old-style eprint~\cite{inproceedings_example}.
+
+\texttt{conference}: alias for \texttt{inproceedings}~\cite{conference_example}.
+
+\texttt{incollection}: alias for \texttt{inbook}, with editor~\cite{incollection_example}.
+
+\section{Misc}
+
+\texttt{misc} with eprint only~\cite{misc_preprint}.
+
+\texttt{misc} with \texttt{howpublished} and \texttt{url} (no eprint)~\cite{misc_howpublished}.
+
+\section{Theses}
+
+\texttt{phdthesis} with school and eprint~\cite{phdthesis_full}.
+
+\texttt{phdthesis} with no \texttt{school} field (edge case): should fall back to ``PhD thesis (year)'' with no comma~\cite{phdthesis_noschool}.
+
+\texttt{mastersthesis} with school~\cite{mastersthesis_example}.
+
+\section{Technical Reports}
+
+\texttt{techreport} with institution, number, and year~\cite{techreport_full}.
+
+\texttt{techreport} with number and year but no institution~\cite{techreport_no_institution}.
+
+\texttt{techreport} with year only (no number, no institution): should output ``(year)'' with no double space~\cite{techreport_year_only}.
+
+\section{Grouped citations (\texttt{mcite})}
+
+Two references grouped under one citation number; the bibliography entry should show both separated by a semicolon~\cite{mcite_a1, *mcite_a2}.
+
+Three references grouped; all three should appear under the same number~\cite{mcite_b1, *mcite_b2, *mcite_b3}.
+
+A second two-entry group appearing after the three-entry group, to verify that citation numbers increment correctly~\cite{mcite_c1, *mcite_c2}.
+
+\bibliography{chetref_test}
+
+\end{document}

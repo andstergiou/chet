@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# LaTeX auxiliary files
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+
+# Generated bib file (produced by filecontents in chetdoc.tex)
+doc/chetdocbib.bib

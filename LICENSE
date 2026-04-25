@@ -1,0 +1,9 @@
+The chet package is distributed under the LaTeX Project Public License,
+version 1.3c or later. The latest version of this license is at:
+
+    https://www.latex-project.org/lppl.txt
+
+This work has the LPPL maintenance status 'maintained'.
+The Current Maintainer of this work is Andreas Stergiou.
+This work consists of the files chet.sty and chetref.bst,
+and the documentation file doc/chetdoc.tex.

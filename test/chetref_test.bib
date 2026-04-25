@@ -1,0 +1,353 @@
+% chetref_test.bib
+% Test bibliography for chetref.bst
+
+%%% ARTICLES %%%
+
+% Standard article: three authors, journal, eprint with primaryClass, explicit doi
+@article{standard,
+  author       = {Smith, J.A. and Jones, B.C. and Brown, D.E.},
+  title        = {A standard journal article with three authors},
+  journal      = {Phys. Rev. Lett.},
+  volume       = {125},
+  pages        = {012345},
+  year         = {2020},
+  eprint       = {2001.12345},
+  primaryClass = {hep-th},
+  doi          = {10.1103/PhysRevLett.125.012345},
+}
+
+% Collaboration only (no author field)
+@article{collab_only,
+  collaboration = {ATLAS},
+  title         = {A collaboration-only paper with no individual authors},
+  journal       = {Phys. Lett. B},
+  volume        = {716},
+  pages         = {1},
+  year          = {2012},
+  eprint        = {1207.7214},
+  primaryClass  = {hep-ex},
+  doi           = {10.1016/j.physletb.2012.08.020},
+}
+
+% Collaboration and individual authors
+@article{collab_and_author,
+  collaboration = {CMS},
+  author        = {Chatrchyan, S. and Khachatryan, V. and others},
+  title         = {A paper listing both the collaboration and individual authors},
+  journal       = {Phys. Lett. B},
+  volume        = {716},
+  pages         = {30},
+  year          = {2012},
+  eprint        = {1207.7235},
+  primaryClass  = {hep-ex},
+}
+
+% Many authors ending with "others" (triggers et al.)
+@article{many_authors,
+  author        = {Author, A. and Author, B. and Author, C. and Author, D. and others},
+  title         = {A paper with many authors, producing et al.},
+  journal       = {Nucl. Phys. B},
+  volume        = {900},
+  pages         = {1},
+  year          = {2015},
+  eprint        = {1501.00001},
+  primaryClass  = {hep-th},
+}
+
+% Preprint only: eprint but no journal
+@article{preprint_only,
+  author        = {Preprint, A.},
+  title         = {An unpublished preprint with no journal entry},
+  eprint        = {2301.00001},
+  primaryClass  = {hep-th},
+}
+
+% Old-style arXiv ID (hep-th/...), no primaryClass needed
+@article{old_arxiv,
+  author  = {Maldacena, J.M.},
+  title   = {The Large N limit of superconformal field theories and supergravity},
+  journal = {Adv. Theor. Math. Phys.},
+  volume  = {2},
+  pages   = {231},
+  year    = {1998},
+  eprint  = {hep-th/9711200},
+}
+
+% New arXiv ID with explicit "arXiv:" prefix in the eprint field
+@article{arxiv_prefix,
+  author        = {Rychkov, V.S. and Vichi, A.},
+  title         = {Universal constraints on conformal operator dimensions},
+  journal       = {Phys. Rev. D},
+  volume        = {80},
+  pages         = {045006},
+  year          = {2009},
+  eprint        = {arXiv:0905.2211},
+  primaryClass  = {hep-th},
+}
+
+% JHEP old DOI inference: year starts with "199", 2-digit volume
+% Expected DOI: 10.1088/1126-6708/1999/05/021
+@article{jhep_old_doi,
+  author  = {Aharony, O. and Gubser, S.S. and Ooguri, H. and Oz, Y.},
+  title   = {Large N field theories, string theory and gravity},
+  journal = {JHEP},
+  volume  = {05},
+  pages   = {021},
+  year    = {1999},
+}
+
+% JHEP new DOI inference: year starts with "201", 2-digit volume
+% Expected DOI: 10.1007/JHEP08(2012)034
+@article{jhep_new_doi,
+  author        = {Gaiotto, D.},
+  title         = {N=2 S-duality},
+  journal       = {JHEP},
+  volume        = {08},
+  pages         = {034},
+  year          = {2012},
+  eprint        = {0904.2715},
+  primaryClass  = {hep-th},
+}
+
+% JHEP with explicit doi field (inference suppressed)
+@article{jhep_explicit_doi,
+  author        = {Rattazzi, R. and Rychkov, V. and Tonni, E. and Vichi, A.},
+  title         = {Bounding scalar operator dimensions in 4D CFT},
+  journal       = {JHEP},
+  volume        = {12},
+  pages         = {031},
+  year          = {2008},
+  eprint        = {0805.4418},
+  primaryClass  = {hep-th},
+  doi           = {10.1088/1126-6708/2008/12/031},
+}
+
+% Article with url and note fields
+@article{with_url_note,
+  author  = {Wilson, K.G.},
+  title   = {Renormalization group and critical phenomena. I.},
+  journal = {Phys. Rev. B},
+  volume  = {4},
+  pages   = {3174},
+  year    = {1971},
+  doi     = {10.1103/PhysRevB.4.3174},
+  url     = {https://link.aps.org/doi/10.1103/PhysRevB.4.3174},
+  note    = {See also Phys. Rev. B 4, 3184 (1971)},
+}
+
+%%% BOOKS %%%
+
+% Book with author, publisher, address
+@book{book_author,
+  author    = {Polchinski, J.},
+  title     = {String Theory. Vol. 1: An Introduction to the Bosonic String},
+  publisher = {Cambridge University Press},
+  year      = {2005},
+  address   = {Cambridge},
+}
+
+% Book with editor only (no author): tests editor output in book
+@book{book_editor,
+  editor    = {D'Hoker, E. and Phong, D.H.},
+  title     = {Quantum Fields and Strings: A Course for Mathematicians},
+  publisher = {American Mathematical Society},
+  year      = {1999},
+  address   = {Providence, RI},
+}
+
+% Book with eprint and edition
+@book{book_eprint,
+  author    = {Freedman, D.Z. and Van Proeyen, A.},
+  title     = {Supergravity},
+  publisher = {Cambridge University Press},
+  edition   = {2nd},
+  year      = {2012},
+  eprint    = {1110.4858},
+  primaryClass = {hep-th},
+}
+
+%%% INBOOK / INPROCEEDINGS / CONFERENCE / INCOLLECTION %%%
+
+% inbook: chapter in a book, with pages and publisher
+@inbook{inbook_example,
+  author    = {Coleman, S.},
+  title     = {Secret Symmetry},
+  booktitle = {Aspects of Symmetry},
+  pages     = {113--184},
+  publisher = {Cambridge University Press},
+  year      = {1985},
+}
+
+% inproceedings: with editor and eprint
+@inproceedings{inproceedings_example,
+  author    = {Polyakov, A.M.},
+  title     = {String theory and quark confinement},
+  booktitle = {Strings 97},
+  editor    = {Ooguri, H. and Oz, Y.},
+  pages     = {1--8},
+  year      = {1997},
+  eprint    = {hep-th/9711002},
+}
+
+% conference: alias for inproceedings
+@conference{conference_example,
+  author    = {Witten, E.},
+  title     = {Branes and the dynamics of QCD},
+  booktitle = {NATO Advanced Study Institute: Confinement, Duality and Nonperturbative Aspects of QCD},
+  year      = {1997},
+  eprint    = {hep-th/9710065},
+}
+
+% incollection: alias for inbook, with editor
+@incollection{incollection_example,
+  author    = {Zinn-Justin, J.},
+  title     = {Renormalization of gauge theories},
+  booktitle = {Trends in Elementary Particle Theory},
+  editor    = {Rollnik, H. and Dietz, K.},
+  pages     = {1--39},
+  publisher = {Springer},
+  year      = {1975},
+}
+
+%%% MISC %%%
+
+% misc: eprint only
+@misc{misc_preprint,
+  author        = {McGreevy, J.},
+  title         = {Holographic duality with a view toward many-body physics},
+  eprint        = {0909.0518},
+  primaryClass  = {hep-th},
+}
+
+% misc: howpublished and url (no eprint)
+@misc{misc_howpublished,
+  author       = {Workman, R.L. and others},
+  title        = {Review of Particle Physics},
+  howpublished = {Particle Data Group},
+  url          = {https://pdg.lbl.gov},
+  year         = {2022},
+}
+
+%%% THESES %%%
+
+% phdthesis: with school and eprint
+@phdthesis{phdthesis_full,
+  author = {Rychkov, V.S.},
+  title  = {D1D5 black hole in string theory},
+  school = {Princeton University},
+  year   = {2002},
+  eprint = {hep-th/0204131},
+}
+
+% phdthesis: no school field (edge case: school branch falls to "PhD thesis (year)")
+@phdthesis{phdthesis_noschool,
+  author = {Noschool, A.},
+  title  = {A thesis with no school field},
+  year   = {2020},
+}
+
+% mastersthesis: with school
+@mastersthesis{mastersthesis_example,
+  author = {Student, A.B.},
+  title  = {A master's level study of conformal field theory},
+  school = {University of Cambridge},
+  year   = {2015},
+}
+
+%%% TECHREPORTS %%%
+
+% techreport: institution + number + year
+@techreport{techreport_full,
+  author      = {Chetyrkin, K.G. and Tkachov, F.V.},
+  title       = {Integration by parts: the algorithm to calculate beta-functions},
+  institution = {INR Moscow},
+  number      = {INR-P-0453},
+  year        = {1981},
+}
+
+% techreport: number + year only (no institution)
+@techreport{techreport_no_institution,
+  author        = {Author, B.},
+  title         = {A technical report with number but no institution},
+  number        = {TECH-2020-001},
+  year          = {2020},
+  eprint        = {2001.00099},
+  primaryClass  = {hep-ph},
+}
+
+% techreport: year only (no number, no institution)
+% Tests the edge case: output is "(year)" with no leading space
+@techreport{techreport_year_only,
+  author = {Author, C.},
+  title  = {A minimal technical report with year only},
+  year   = {2021},
+}
+
+%%% MCITE-ONLY ENTRIES %%%
+% These entries are only cited in the mcite section so they are
+% never declared as heads before being used as tails.
+
+@article{mcite_a1,
+  author        = {Witten, E.},
+  title         = {Anti-de Sitter space and holography},
+  journal       = {Adv. Theor. Math. Phys.},
+  volume        = {2},
+  pages         = {253},
+  year          = {1998},
+  eprint        = {hep-th/9802150},
+}
+
+@article{mcite_a2,
+  author        = {Gubser, S.S. and Klebanov, I.R. and Polyakov, A.M.},
+  title         = {Gauge theory correlators from non-critical string theory},
+  journal       = {Phys. Lett. B},
+  volume        = {428},
+  pages         = {105},
+  year          = {1998},
+  eprint        = {hep-th/9802109},
+}
+
+@article{mcite_b1,
+  author        = {Zamolodchikov, A.B.},
+  title         = {Irreversibility of the flux of the renormalization group},
+  journal       = {JETP Lett.},
+  volume        = {43},
+  pages         = {730},
+  year          = {1986},
+}
+
+@article{mcite_b2,
+  author        = {Cardy, J.L.},
+  title         = {Is there a c theorem in four dimensions?},
+  journal       = {Phys. Lett. B},
+  volume        = {215},
+  pages         = {749},
+  year          = {1988},
+}
+
+@article{mcite_b3,
+  author        = {Komargodski, Z. and Schwimmer, A.},
+  title         = {On renormalization group flows in four dimensions},
+  journal       = {JHEP},
+  volume        = {12},
+  pages         = {099},
+  year          = {2011},
+  eprint        = {1107.3987},
+  primaryClass  = {hep-th},
+}
+
+@article{mcite_c1,
+  author        = {Belavin, A.A. and Polyakov, A.M. and Zamolodchikov, A.B.},
+  title         = {Infinite conformal symmetry in two-dimensional quantum field theory},
+  journal       = {Nucl. Phys. B},
+  volume        = {241},
+  pages         = {333},
+  year          = {1984},
+}
+
+@book{mcite_c2,
+  author    = {Di Francesco, P. and Mathieu, P. and Senechal, D.},
+  title     = {Conformal Field Theory},
+  publisher = {Springer},
+  year      = {1997},
+}

@@ -31,6 +31,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\RequirePackage{amsmath}
+
 \ifChet@macrosonly
 
 \newcommand{\rcite}{\cite}
@@ -41,7 +43,6 @@
 \else
 
 \RequirePackage{datetime}
-\RequirePackage{amsmath}
 \RequirePackage[labelsep=colon,labelfont=bf]{caption}
 \RequirePackage{tocloft}
 \RequirePackage{cite}
@@ -179,6 +180,20 @@
   \end{titlepage}
 }
 
+\renewcommand\section{\@startsection{section}{1}{\z@}%
+  {-6ex \@plus -1ex \@minus -.2ex}%
+  {2.3ex \@plus.2ex}%
+  {\bfseries}}
+\let\orig@section\section
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+  {-3.25ex\@plus -1ex \@minus -.2ex}%
+  {1.5ex \@plus .2ex}%
+  {\itshape}}
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+  {-3.25ex\@plus -1ex \@minus -.2ex}%
+  {1.5ex \@plus .2ex}%
+  {\itshape}}
+
 % Dot after section number
 \def\@seccntformat#1{\csname the#1\endcsname.\hspace{4.6pt}}
 
@@ -276,24 +291,6 @@
     {\subsubsection{#1}\label{#2}%
      \expandafter\gdef\csname #2\endcsname{\ref{#2}\xspace}\ignorespaces}
 }
-
-\renewcommand\section{\@startsection{section}{1}{\z@}%
-  {-6ex \@plus -1ex \@minus -.2ex}%
-  {2.3ex \@plus.2ex}%
-  {\bfseries}}
-\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
-  {-3.25ex\@plus -1ex \@minus -.2ex}%
-  {1.5ex \@plus .2ex}%
-  {\itshape}}
-\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
-  {-3.25ex\@plus -1ex \@minus -.2ex}%
-  {1.5ex \@plus .2ex}%
-  {\itshape}}
-
-% Re-capture \orig@section after our \section redefinition so appendix titles use our formatting
-\ifChet@macrosonly\else
-  \let\orig@section\section
-\fi
 
 \endinput
 %
