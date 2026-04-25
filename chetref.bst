@@ -403,6 +403,8 @@ FUNCTION {misc}
   fin.entry
 }
 
+FUNCTION {unpublished} { misc }
+
 FUNCTION {phdthesis}
 {
   author missing$ { "author missing in " cite$ * warning$} 'skip$ if$

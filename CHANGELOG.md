@@ -7,8 +7,8 @@ All notable changes to the chet package are recorded here.
 - Added `mcite` package option, enabling grouped citations via `mciteplus`
 - Added `british` package option for "Acknowledgements" spelling
 - Added `macrosonly` option for use with external style files
-- `chetref.bst`: added `misc`, `phdthesis`, `mastersthesis`, `techreport`,
-  `inproceedings`, `conference`, and `incollection` entry types
+- `chetref.bst`: added `misc`, `unpublished`, `phdthesis`, `mastersthesis`,
+  `techreport`, `inproceedings`, `conference`, and `incollection` entry types
 - `chetref.bst`: fixed `inbook` and `inproceedings` missing `fin.entry` call
 - `chetref.bst`: fixed collaboration-only entries producing a double comma
 - `chetref.bst`: fixed `book` ignoring the `editor` field for edited volumes
