@@ -2,6 +2,10 @@
 
 All notable changes to the chet package are recorded here.
 
+## [2.3a] — 2026-04-26
+
+- Version number synchronised with CTAN release
+
 ## [2.3] — 2026
 
 - Added `mcite` package option, enabling grouped citations via `mciteplus`

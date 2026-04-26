@@ -1,4 +1,4 @@
-% chetref.bst
+% chetref.bst (version 2.3a)
 % Copyright 2026 Andreas Stergiou
 %
 % This work may be distributed and/or modified under the
