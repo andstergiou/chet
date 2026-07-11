@@ -1,4 +1,4 @@
-% chet.sty (version 2.3a)
+% chet.sty (version 2.3b)
 % Copyright 2026 Andreas Stergiou
 %
 % This package is supposed to streamline latex typesetting and give the
@@ -13,7 +13,7 @@
 % version 2005/12/01 or later.
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{chet}[2026/04/26 v2.3a chet style]
+\ProvidesPackage{chet}[2026/07/11 v2.3b chet style]
 
 \RequirePackage{kvoptions}
 \RequirePackage{xparse}
@@ -124,6 +124,7 @@
   \setcounter{section}{0}%
   \setcounter{subsection}{0}%
   \gdef\thesection{\@Alph\c@section}%
+  \gdef\theHsection{\@Alph\c@section}%
   \let\section\appendix@section}
 \newcommand{\appendices}{\appendix}
 
