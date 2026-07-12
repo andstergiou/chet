@@ -2,6 +2,10 @@
 
 All notable changes to the chet package are recorded here.
 
+## [2.3b] — 2026-07-11
+
+- Fix hyperref duplicate anchors in appendices: Define `\theHsection` when redefining `\appendix`, resolving duplicate anchor IDs (e.g. equation.1.1 vs equation.A.1) that cause links to jump to the main body instead of the appendix.
+
 ## [2.3a] — 2026-04-26
 
 - Version number synchronised with CTAN release

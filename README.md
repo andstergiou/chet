@@ -7,6 +7,8 @@ The `chet` package provides a streamlined LaTeX2e setup inspired by Paul
 Ginsparg's `harvmac`. It gives papers the typographic look and feel of
 `harvmac` while using standard LaTeX2e commands and environments.
 
+**Author:** Andreas Stergiou (<andstergiou@gmail.com>)
+
 See [doc/chetdoc.pdf](doc/chetdoc.pdf) for full documentation and examples.
 
 ## Contents
