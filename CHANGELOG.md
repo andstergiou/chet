@@ -9,7 +9,7 @@ All notable changes to the chet package are recorded here.
 - `test/newchet_test.tex` and `make newchet-test` check the bibliography against the chetref cases
 - Title page as in `chet.sty`, with `\preprint`, `\affiliation`, `\abstract`, `\email`, `\emailV`, `\emails` and `\titlemath`; the title font is the T1 version of chet's scaled `cmr10`
 - `acknowledgements` environment and `\ack`, with British spelling by default
-- The References heading is centred, as in `chet.sty`, with or without titlesec
+- The References heading is centred, as in `chet.sty`, with or without titlesec, and the space below it is cut to match `chet.sty`
 - Theorem notes are bold in the `plain` and `definition` styles, matching the head
 - Options `nobib`, `nogeometry`, `nohyperref`, `notoc`, `notitlesec`, `notitlepage` and `notheorems`; incompatible parts are switched off automatically for the AMS, revtex, memoir and KOMA classes
 
