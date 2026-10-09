@@ -302,6 +302,17 @@
 
 \renewcommand*{\bibfont}{\small}
 
+% The References heading is centred, as in chet.sty.  titlesec's default shape ignores
+% \centering in the title, so with titlesec the heading gets a centred format of its own.
+\defbibheading{bibliography}[\refname]{%
+  \ifnewchet@titlesec
+    {\titleformat{name=\section,numberless}[block]{\normalfont\large\bfseries\filcenter}{}{0pt}{}%
+     \section*{#1}}%
+  \else
+    \section*{\centering #1}%
+  \fi
+  \markboth{\MakeUppercase{#1}}{\MakeUppercase{#1}}}
+
 \ExecuteBibliographyOptions{sorting=none,giveninits=true,maxbibnames=99,minbibnames=99}
 
 % biblatex has no collaboration field, so biber would drop it.  Keep it in usera.
