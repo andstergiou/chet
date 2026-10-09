@@ -284,6 +284,13 @@
 % the year prepended (JHEP 2104 for volume 04 of 2021), every eprint is taken to be an arXiv
 % identifier, and the bibliography is in citation order.  Unlike chetref.bst, all given-name
 % initials are printed.  Citations are sorted and compressed, as with the cite package.
+%
+% Also as in chetref.bst: a collaboration field prints "ATLAS Collaboration" before the
+% authors, a JHEP article without a doi gets one inferred from volume, year and page, and
+% the members of a group of references start on new lines.  Groups need the mcite option,
+% \usepackage[mcite]{newchet}, and biblatex's syntax, whose first key names the group:
+%   \mcite{group1,*key1,*key2}
+% chet's \cite{key1,*key2} would drop key1, since biblatex takes it as the group's name.
 % ----------------------------------------------------------------------------
 % With nobib, stop reading here rather than skip the rest with \ifnewchet@bib ... \fi.
 % Skipping would still count conditionals, and memoir defines \ifinteger with \newif,
@@ -297,6 +304,16 @@
 
 \ExecuteBibliographyOptions{sorting=none,giveninits=true,maxbibnames=99,minbibnames=99}
 
+% biblatex has no collaboration field, so biber would drop it.  Keep it in usera.
+\DeclareSourcemap{
+  \maps[datatype=bibtex]{
+    \map{\step[fieldsource=collaboration, fieldtarget=usera]}}}
+
+% "Master's thesis" rather than biblatex's "MA thesis"
+\DefineBibliographyStrings{english}{mathesis={Master's thesis}}
+\DefineBibliographyStrings{british}{mathesis={Master's thesis}}
+\DefineBibliographyStrings{american}{mathesis={Master's thesis}}
+
 \providecommand*{\arxivref}[2]{\href{https://arxiv.org/abs/#1}{#2}}
 \providecommand*{\doiref}[2]{\href{https://doi.org/#1}{#2}}
 
@@ -304,6 +321,8 @@
 \renewcommand*{\newunitpunct}{\addcomma\space}
 \renewcommand*{\newblockpunct}{\addcomma\space}
 \renewcommand*{\finentrypunct}{\addperiod}
+% Members of a group of references (\mcite) are separated by a semicolon and a new line
+\renewcommand*{\entrysetpunct}{\addsemicolon\newline}
 
 % Names: F.~Last, with commas between names and & before the last one (no serial comma)
 \DeclareNameAlias{default}{given-family}
@@ -312,14 +331,27 @@
 \DeclareDelimFormat{multinamedelim}{\addcomma\space}
 \DeclareDelimFormat{finalnamedelim}{\addspace\&\space}
 \DeclareDelimFormat{andothersdelim}{\addspace}
+% biblatex's name:andothers puts \finalandcomma before "et al." after two or more names,
+% and chetref does not.  Redefining \finalandcomma itself would not last, since the
+% english language file sets it again at the start of the document.
+\renewbibmacro*{name:andothers}{%
+  \ifboolexpr{
+    test {\ifnumequal{\value{listcount}}{\value{liststop}}}
+    and
+    test \ifmorenames
+  }
+    {\printdelim{andothersdelim}\bibstring{andothers}}
+    {}}
 
 % Fields
-\DeclareFieldFormat*{title}{\textit{``#1''}}
-\DeclareFieldFormat{booktitle}{in \textit{``#1''}}
-\DeclareFieldFormat{edition}{\ifinteger{#1}{\mkbibordedition{#1}~edition}{#1\isdot}}
+% \isdot keeps a title that ends in a full stop from swallowing the comma after it
+\DeclareFieldFormat*{title}{\textit{``#1\isdot''}}
+\DeclareFieldFormat{booktitle}{in \textit{``#1\isdot''}}
+\DeclareFieldFormat{edition}{\ifinteger{#1}{\mkbibordedition{#1}~edition}{\chetedition{#1}}}
+\DeclareFieldFormat{chet:collaboration}{#1~Collaboration}
 \DeclareFieldFormat{pages}{p\adddot~#1}
 \DeclareFieldFormat{chet:firstpage}{\mkfirstpage{#1}}
-\DeclareFieldFormat{chet:doilink}{\iffieldundef{doi}{#1}{\doiref{\thefield{doi}}{#1}}}
+\DeclareFieldFormat{chet:doilink}{\iffieldundef{doi}{\chetjhepdoilink{#1}}{\doiref{\thefield{doi}}{#1}}}
 
 \ExplSyntaxOn
 % JHEP volume 04 of 2021 is printed as 2104
@@ -337,10 +369,61 @@
       { \exp_args:Nee \chet_jhep_volume:nn { \thefield { volume } } { \thefield { year } } }
       { \thefield { volume } }
   }
-% An eprint without a scheme (e.g. hep-th/9711200) gets no arXiv: prefix
+% A JHEP article without a doi links to the DOI inferred from volume, year and first
+% page.  JHEP moved from IOP to Springer in 2009, which changed the DOI pattern:
+%   up to 2008   10.1088/1126-6708/1999/05/021
+%   from 2009    10.1007/JHEP08(2012)034
+% chetref.bst only infers DOIs for years starting 199 or 201.
+\tl_new:N \l__chet_volume_tl
+\tl_new:N \l__chet_year_tl
+\tl_new:N \l__chet_page_tl
+\tl_new:N \l__chet_doi_tl
+\cs_new_protected:Npn \chet_jhep_doilink:n #1
+  {
+    \tl_clear:N \l__chet_doi_tl
+    \iffieldequalstr { journaltitle } { JHEP }
+      {
+        \tl_set:Ne \l__chet_volume_tl { \thefield { volume } }
+        \tl_set:Ne \l__chet_year_tl { \thefield { year } }
+        \iffieldundef { pages } { \tl_clear:N \l__chet_page_tl }
+          { \tl_set:Ne \l__chet_page_tl { \thefield { pages } } }
+        \bool_lazy_all:nT
+          {
+            { \int_compare_p:nNn { \tl_count:N \l__chet_volume_tl } = { 2 } }
+            { \int_compare_p:nNn { \tl_count:N \l__chet_year_tl } = { 4 } }
+            { ! \tl_if_empty_p:N \l__chet_page_tl }
+          }
+          {
+            \int_compare:nNnTF { \l__chet_year_tl } < { 2009 }
+              {
+                \tl_set:Ne \l__chet_doi_tl
+                  { 10.1088/1126-6708/ \l__chet_year_tl / \l__chet_volume_tl / \l__chet_page_tl }
+              }
+              {
+                \tl_set:Ne \l__chet_doi_tl
+                  { 10.1007/JHEP \l__chet_volume_tl ( \l__chet_year_tl ) \l__chet_page_tl }
+              }
+          }
+      }
+      { }
+    \tl_if_empty:NTF \l__chet_doi_tl
+      {#1}
+      { \exp_args:NV \doiref \l__chet_doi_tl {#1} }
+  }
+\cs_new_eq:NN \chetjhepdoilink \chet_jhep_doilink:n
+% A non-numeric edition gets "edition" appended, unless it already says so
+\cs_new_protected:Npn \chet_print_edition:n #1
+  { \tl_if_in:nnTF {#1} { edition } {#1} { #1 \nobreakspace edition } }
+\cs_new_eq:NN \chetedition \chet_print_edition:n
+% An eprint without a scheme (e.g. hep-th/9711200) gets no arXiv: prefix.  An eprint
+% that already starts with arXiv: has it removed first, so it is not printed twice.
 \cs_new_protected:Npn \chet_print_eprint:n #1
   {
     \tl_set:Ne \l_tmpa_tl {#1}
+    \str_if_eq:eeT
+      { \str_lowercase:f { \str_range:Nnn \l_tmpa_tl { 1 } { 6 } } }
+      { arxiv: }
+      { \tl_set:Ne \l_tmpa_tl { \str_range:Nnn \l_tmpa_tl { 7 } { -1 } } }
     \tl_if_in:NnTF \l_tmpa_tl { / }
       { \tl_set_eq:NN \l_tmpb_tl \l_tmpa_tl }
       { \tl_set:Ne \l_tmpb_tl { arXiv: \l_tmpa_tl } }
@@ -361,6 +444,7 @@
 
 % Building blocks
 \newbibmacro*{chet:authors}{%
+  \printfield[chet:collaboration]{usera}\newunit
   \ifnameundef{author}{}{\printnames{author}}%
   \newunit}
 

@@ -351,3 +351,31 @@
   publisher = {Springer},
   year      = {1997},
 }
+
+%%% NEWCHET-ONLY ENTRIES %%%
+% Cited only in newchet_test.tex.  chetref.bst infers JHEP DOIs only for years
+% starting 199 or 201, so it gives no link for these.
+
+% JHEP in the IOP years 2000-2008
+% Expected DOI: 10.1088/1126-6708/2004/06/017
+@article{jhep_iop_2004,
+  author  = {Iop, A.},
+  title   = {A JHEP article from 2004},
+  journal = {JHEP},
+  volume  = {06},
+  pages   = {017},
+  year    = {2004},
+}
+
+% JHEP in the 2020s
+% Expected DOI: 10.1007/JHEP04(2021)123
+@article{jhep_springer_2021,
+  author        = {Springer, B.},
+  title         = {A JHEP article from 2021},
+  journal       = {JHEP},
+  volume        = {04},
+  pages         = {123},
+  year          = {2021},
+  eprint        = {2101.00001},
+  primaryClass  = {hep-th},
+}

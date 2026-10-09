@@ -123,7 +123,11 @@ Compile with pdflatex and biber:
 pdflatex paper && biber paper && pdflatex paper && pdflatex paper
 ```
 
-Bibliography entries read as J. Smith, B. Jones & D. Brown, *"Title"*, Journal **vol**, page (year), arXiv:XXXX.XXXXX [class]. The journal reference links to the DOI and the arXiv identifier links to arxiv.org. Entries are in citation order, and citations are sorted and compressed.
+Bibliography entries read as J. Smith, B. Jones & D. Brown, *"Title"*, Journal **vol**, page (year), arXiv:XXXX.XXXXX [class]. The journal reference links to the DOI and the arXiv identifier links to arxiv.org. Entries are in citation order, and citations are sorted and compressed. A `collaboration` field prints "ATLAS Collaboration" before the authors. A JHEP article without a `doi` gets a DOI link inferred from its volume, year and page.
+
+For grouped citations, load `\usepackage[mcite]{newchet}` and use biblatex's syntax, whose first key names the group: `\mcite{group1,*key1,*key2}`. chet's `\cite{key1, *key2}` would drop `key1`. Each member of a group starts on a new line.
+
+`test/newchet_test.tex` checks the bibliography against the cases of `chetref_test.tex`. Build it with `make newchet-test`.
 
 ### Options
 

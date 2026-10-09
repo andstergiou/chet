@@ -11,6 +11,8 @@
 *.out
 *.synctex.gz
 *.toc
+*.bcf
+*.run.xml
 
 # Generated bib file (produced by filecontents in chetdoc.tex)
 doc/chetdocbib.bib

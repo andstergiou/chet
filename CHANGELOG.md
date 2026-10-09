@@ -5,6 +5,8 @@ All notable changes to the chet package are recorded here.
 ## [newchet 1.0] — 2026-10-09
 
 - Added `newchet/newchet.sty`, a new version of chet built on current packages: biblatex replaces `chetref.bst` with a chetref-like style, titlesec sets the headings, and hyperref, geometry, tocloft and microtype are configured
+- The bibliography reproduces every case of `test/chetref_test.tex`: collaborations, et al. without a comma, `arXiv:` prefixes, editions, Master's theses, grouped citations via `\mcite` and JHEP DOI inference; JHEP DOIs are inferred for all years (IOP up to 2008, Springer from 2009), not only those starting 199 or 201
+- `test/newchet_test.tex` and `make newchet-test` check the bibliography against the chetref cases
 - Title page as in `chet.sty`, with `\preprint`, `\affiliation`, `\abstract`, `\email`, `\emailV`, `\emails` and `\titlemath`; the title font is the T1 version of chet's scaled `cmr10`
 - `acknowledgements` environment and `\ack`, with British spelling by default
 - Theorem notes are bold in the `plain` and `definition` styles, matching the head
