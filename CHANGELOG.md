@@ -2,6 +2,14 @@
 
 All notable changes to the chet package are recorded here.
 
+## [newchet 1.0] — 2026-10-09
+
+- Added `newchet/newchet.sty`, a new version of chet built on current packages: biblatex replaces `chetref.bst` with a chetref-like style, titlesec sets the headings, and hyperref, geometry, tocloft and microtype are configured
+- Title page as in `chet.sty`, with `\preprint`, `\affiliation`, `\abstract`, `\email`, `\emailV`, `\emails` and `\titlemath`; the title font is the T1 version of chet's scaled `cmr10`
+- `acknowledgements` environment and `\ack`, with British spelling by default
+- Theorem notes are bold in the `plain` and `definition` styles, matching the head
+- Options `nobib`, `nogeometry`, `nohyperref`, `notoc`, `notitlesec`, `notitlepage` and `notheorems`; incompatible parts are switched off automatically for the AMS, revtex, memoir and KOMA classes
+
 ## [2.3b] — 2026-07-11
 
 - Fix hyperref duplicate anchors in appendices: Define `\theHsection` when redefining `\appendix`, resolving duplicate anchor IDs (e.g. equation.1.1 vs equation.A.1) that cause links to jump to the main body instead of the appendix.

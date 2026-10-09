@@ -1,0 +1,463 @@
+% newchet.sty
+%
+%   \documentclass[11pt,a4paper]{article}
+%   \usepackage{newchet}
+%   \addbibresource{bibliography.bib}
+%   \preprint{...}  \title{...}  \author{...\email{...}}  \affiliation{...}  \abstract{...}
+%   \begin{document} \maketitle ... \printbibliography \end{document}
+%
+% The title page imitates chet.sty: preprint number top right, a large title, authors,
+% affiliations in italics, the abstract, and the date (month and year) bottom left.
+% \preprint, \affiliation and \abstract{...} go in the preamble.  \date{...} overrides the
+% date.  Emails are footnotes: \email{...} side by side, \emailV{...} one below the other,
+% \emails{...} all in one unmarked footnote.  Use $\titlemath{...}$ for math in the title.
+%
+% Install into the personal tree so that it works from any directory:
+%   ~/Library/texmf/tex/latex/newchet/newchet.sty
+%
+% Options
+%   nobib        do not load biblatex (use with revtex, bst files, or no bibliography)
+%   nogeometry   do not load geometry (the class or another package sets the margins)
+%   nohyperref   do not load hyperref
+%   notoc        do not load tocloft or reformat the table of contents
+%   notitlesec   do not load titlesec or reformat the section headings
+%   notitlepage  keep the class's own \maketitle and abstract environment
+%   notheorems   do not define theorem, proposition, conjecture
+% Any other option is handed to biblatex, e.g. \usepackage[backend=bibtex]{newchet}.
+% The margins can still be changed afterwards with \geometry{margin=3cm}.
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{newchet}[2026/10/09 v1.0 personal article style with chetref-like bibliography]
+
+\newif\ifnewchet@bib        \newchet@bibtrue
+\newif\ifnewchet@geometry   \newchet@geometrytrue
+\newif\ifnewchet@hyperref   \newchet@hyperreftrue
+\newif\ifnewchet@toc        \newchet@toctrue
+\newif\ifnewchet@titlesec   \newchet@titlesectrue
+\newif\ifnewchet@titlepage  \newchet@titlepagetrue
+\newif\ifnewchet@theorems   \newchet@theoremstrue
+
+\DeclareOption{nobib}{\newchet@bibfalse}
+\DeclareOption{nogeometry}{\newchet@geometryfalse}
+\DeclareOption{nohyperref}{\newchet@hyperreffalse}
+\DeclareOption{notoc}{\newchet@tocfalse}
+\DeclareOption{notitlesec}{\newchet@titlesecfalse}
+\DeclareOption{notitlepage}{\newchet@titlepagefalse}
+\DeclareOption{notheorems}{\newchet@theoremsfalse}
+\DeclareOption*{\PassOptionsToPackage{\CurrentOption}{biblatex}}
+\ProcessOptions\relax
+
+% tocloft cannot patch the table of contents of the AMS classes, and memoir has
+% tocloft's features built in and refuses to load it, so drop that part
+% of the style there rather than let the document fail
+\ifnewchet@toc
+  \@ifclassloaded{amsart}{\newchet@tocfalse}{}%
+  \@ifclassloaded{amsbook}{\newchet@tocfalse}{}%
+  \@ifclassloaded{amsproc}{\newchet@tocfalse}{}%
+  \@ifclassloaded{memoir}{\newchet@tocfalse}{}%
+  \ifnewchet@toc\else
+    \PackageWarningNoLine{newchet}{tocloft is incompatible with this class,%
+      \MessageBreak so the table of contents is left as the class sets it}%
+  \fi
+\fi
+
+% titlesec redefines the sectioning commands and breaks or fights the classes that
+% have their own heading machinery, so leave the headings to the class there
+\ifnewchet@titlesec
+  \@for\newchet@cls:=amsart,amsbook,amsproc,revtex4,revtex4-1,revtex4-2,memoir,%
+      scrartcl,scrreprt,scrbook\do{%
+    \@ifclassloaded{\newchet@cls}{\newchet@titlesecfalse}{}}%
+  \ifnewchet@titlesec\else
+    \PackageWarningNoLine{newchet}{titlesec is incompatible with this class,%
+      \MessageBreak so the section headings are left as the class sets them}%
+  \fi
+\fi
+
+% The AMS, revtex and memoir classes have their own title machinery (\address,
+% \affiliation, \thanks handling), so leave their title page alone
+\ifnewchet@titlepage
+  \@for\newchet@cls:=amsart,amsbook,amsproc,revtex4,revtex4-1,revtex4-2,memoir\do{%
+    \@ifclassloaded{\newchet@cls}{\newchet@titlepagefalse}{}}%
+  \ifnewchet@titlepage\else
+    \PackageWarningNoLine{newchet}{this class sets its own title page,%
+      \MessageBreak so \string\maketitle\space is left as the class defines it}%
+  \fi
+\fi
+
+% ----------------------------------------------------------------------------
+% Page, fonts, general packages
+% ----------------------------------------------------------------------------
+\ifnewchet@geometry
+  \RequirePackage[margin=2.4cm]{geometry}
+\fi
+\RequirePackage[T1]{fontenc}
+\RequirePackage{amsmath,amssymb,amsthm}
+\RequirePackage{microtype}
+\RequirePackage{booktabs}
+\RequirePackage{enumitem}
+\RequirePackage{array}
+\RequirePackage{float}
+\RequirePackage{xcolor}
+\RequirePackage[font=small,format=hang,labelfont={sf,bf}]{caption}
+\ifnewchet@toc
+  \RequirePackage{tocloft}
+\fi
+% titlesec must come before hyperref, which patches the sectioning commands
+\ifnewchet@titlesec
+  \RequirePackage{titlesec}
+\fi
+% manyfoot provides the extra footnote levels for the emails on the title page
+\ifnewchet@titlepage
+  \RequirePackage[para]{manyfoot}
+\fi
+
+\definecolor{forestgreen}{rgb}{0.0,0.27,0.13}
+\definecolor{darkblue}{rgb}{0.0,0.0,0.55}
+\definecolor{darkred}{rgb}{0.55,0.0,0.0}
+
+\ifnewchet@hyperref
+  % pdfusetitle takes pdftitle and pdfauthor from \title and \author; it is
+  % only honoured as a load-time option, hence \PassOptionsToPackage here
+  \PassOptionsToPackage{pdfusetitle}{hyperref}
+  \RequirePackage{hyperref}
+  \hypersetup{colorlinks,linkcolor=forestgreen,citecolor=darkblue,
+    urlcolor=darkred,linktoc=page,pdfdisplaydoctitle}
+\fi
+
+\ifnewchet@theorems
+  \newtheorem{theorem}{Theorem}
+  \newtheorem{proposition}{Proposition}
+  \newtheorem{conjecture}{Conjecture}
+\fi
+
+% Table of contents formatting
+\ifnewchet@toc
+  \setcounter{tocdepth}{3}
+  % \hfill + \hspace*{\fill} centres the title exactly as \centerline{\contentsname}
+  % did, without putting \centerline inside \contentsname, which breaks in classes
+  % that typeset the title in a group (amsart)
+  \renewcommand{\cfttoctitlefont}{\hfill\bfseries}
+  \renewcommand{\cftaftertoctitle}{\hspace*{\fill}}
+  \renewcommand{\cftsecaftersnum}{.}
+  \renewcommand{\cftsubsecaftersnum}{.}
+  \renewcommand{\cftsubsubsecaftersnum}{.}
+  % Narrower number boxes than tocloft's 2.3em and 3.2em, so the gap after the number
+  % is about as tight as in the headings.  Each indent is the one above it plus its
+  % number box, so the titles of one level stay aligned under each other.
+  \setlength{\cftsubsecnumwidth}{2.0em}
+  \setlength{\cftsubsubsecindent}{3.5em}
+  \setlength{\cftsubsubsecnumwidth}{2.8em}
+  % A number too long for its box (10. or 3.10.) would run into the title, so widen
+  % the box for that entry to the number plus the same 0.5em gap as in the headings.
+  % tocloft calls this hook with the number just before it sets the box to \@tempdima.
+  \renewcommand{\@cftinitnumwidth}[1]{%
+    \settowidth{\@tempdimb}{\@cftbsnum #1\@cftasnum\hspace{0.5em}}%
+    \ifdim\@tempdimb>\@tempdima \@tempdima\@tempdimb \fi}
+  \newcommand{\toc}{\tableofcontents}
+\fi
+
+% Section headings: a dot after the number, and two steps smaller than the article
+% defaults (\Large and \large).  The sizes are relative, so they follow the class option.
+\ifnewchet@titlesec
+  \titleformat{\section}{\normalfont\large\bfseries}{\thesection.}{0.5em}{}
+  \titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+  \titleformat{\subsubsection}{\normalfont\normalsize\itshape}{\thesubsubsection.}{0.5em}{}
+\fi
+
+% ----------------------------------------------------------------------------
+% Title page, as in chet.sty
+% ----------------------------------------------------------------------------
+\ifnewchet@titlepage
+% Title font: the 10pt design of Computer Modern scaled up.  Its strokes are heavier
+% than those of the large design sizes, which gives the dark harvmac-like title.
+% chet.sty maps cmr10 into T1, which has the wrong glyph layout; ecrm1000 is the T1
+% version of the same design.
+\DeclareFontFamily{T1}{newchettitle}{}
+\DeclareFontShape{T1}{newchettitle}{m}{n}{<->ecrm1000}{}
+\newcommand*{\newchettitlefont}{\fontencoding{T1}\fontfamily{newchettitle}\fontseries{m}\fontshape{n}\selectfont}
+% Math in the title: $\titlemath{...}$
+\DeclareMathAlphabet{\titlemath}{T1}{newchettitle}{m}{n}
+
+\newcommand*{\preprint}[1]{\gdef\newchet@preprint{#1}}
+\newcommand*{\affiliation}[1]{\gdef\newchet@affiliation{#1}}
+\preprint{}
+\affiliation{}
+\gdef\newchet@abstract{}
+
+% \abstract{...} in the preamble stores the abstract for the title page.  In the
+% document body the class's abstract environment is restored, so \begin{abstract}
+% still works there.
+\let\newchet@abstractenv\abstract
+\renewcommand{\abstract}[1]{\gdef\newchet@abstract{#1}}
+\AtBeginDocument{\let\abstract\newchet@abstractenv}
+
+% Default date: month and year, without changing \today
+\date{\ifcase\month\or January\or February\or March\or April\or May\or June\or July\or
+  August\or September\or October\or November\or December\fi\space\number\year}
+
+% Emails as footnotes on the title page
+\providecommand*{\newchet@mailto}[1]{%
+  \@ifundefined{href}{\texttt{#1}}{\href{mailto:#1}{\texttt{#1}}}}
+% Side by side
+\SetFootnoteHook{\noindent\hspace{-5pt}}
+\DeclareNewFootnote[para]{E}[roman]
+\newcommand*{\email}[1]{\footnoteE{\newchet@mailto{#1}}}
+% One below the other
+\SetFootnoteHook{\noindent\hspace{-10pt}}
+\DeclareNewFootnote{EE}[roman]
+\newcommand*{\emailV}[1]{\footnoteEE{\newchet@mailto{#1}}}
+% All together in one footnote without marks
+\SetFootnoteHook{\noindent}
+\DeclareNewFootnote[para]{EEE}[roman]
+\newcommand*{\emails}[1]{\footnotetextEEE{\texttt{#1}}}
+
+% Keep the emails and title commands out of the PDF metadata set by pdfusetitle
+\ifnewchet@hyperref
+  \pdfstringdefDisableCommands{%
+    \def\email#1{}\def\emailV#1{}\def\emails#1{}\def\thanks#1{}%
+    \def\titlemath#1{#1}\def\and{, }}
+\fi
+
+\renewcommand{\maketitle}{%
+  \begin{titlepage}
+    \let\footnote\thanks
+    \def\and{\unskip\space and\space\ignorespaces}%
+    \renewcommand{\thefootnote}{\fnsymbol{footnote}}%
+    \begin{flushright}
+      \newchet@preprint
+    \end{flushright}
+    \vspace{2cm}
+    \begin{center}
+      {\huge\newchettitlefont\@title\par}
+      \bigskip\bigskip\bigskip
+      \@author\par
+      \bigskip
+      {\itshape\newchet@affiliation\par}
+    \end{center}
+    \bigskip\bigskip
+    \noindent\newchet@abstract\par
+    \vfill
+    \noindent\@date
+    \@thanks
+  \end{titlepage}%
+  \setcounter{footnote}{0}%
+  \global\let\thanks\relax
+  \global\let\@thanks\@empty
+  \global\let\maketitle\relax}
+\fi
+
+% Figure name
+\renewcommand{\figurename}{Fig.}
+
+% Equations numbered within sections
+\@ifundefined{c@section}{}{\numberwithin{equation}{section}}
+
+% For bold math in section headings
+\g@addto@macro\bfseries{\boldmath}
+% amsthm's \@thm forces \thm@notefont{\fontseries\mddefault\upshape} for every theorem, so the bracketed note is set in medium weight while the head punctuation that follows it reverts to the (bold) head font.  Match the note to the head instead.  \bfseries carries \boldmath by the hack above, so math in a theorem note is set in bold math, as intended.  The same applies to the "definition" style, whose head is also bold.  The "remark" style has an italic head and a medium note, which already match, so it is left alone.
+\g@addto@macro\th@plain{\thm@notefont{\bfseries}}
+\g@addto@macro\th@definition{\thm@notefont{\bfseries}}
+
+\allowdisplaybreaks
+
+\setlist{itemsep=1pt,topsep=3pt}
+
+% Acknowledgements, as in chet.sty: a bold centred heading, then the text.
+% Both spellings of the environment work.  Classes that define their own (revtex
+% has acknowledgments) keep theirs.  \ack{...} is a shortcut for the environment.
+\providecommand*{\acknowledgementsname}{Acknowledgements}
+\@ifundefined{acknowledgements}{%
+  \newenvironment{acknowledgements}
+    {\par\vspace{12pt}{\centering\textbf{\acknowledgementsname}\par}\nobreak\noindent\ignorespaces}
+    {\par}}{}
+\@ifundefined{acknowledgments}{%
+  \newenvironment{acknowledgments}{\acknowledgements}{\endacknowledgements}}{}
+\providecommand{\ack}[1]{\begin{acknowledgements}#1\end{acknowledgements}}
+
+% ----------------------------------------------------------------------------
+% Bibliography: the former chetref.bbx and chetref.cbx, applied inline
+%
+% chetref imitates chetref.bst (v2.3a).  Entries read as
+%   J. Smith, B. Jones & D. Brown, ``Title'', Journal vol, page (year), arXiv:XXXX.XXXXX [class].
+% with the title in italics, the journal reference linked to the DOI and the arXiv identifier in
+% typewriter type linked to arxiv.org.  As in chetref.bst, a two-digit JHEP volume is printed with
+% the year prepended (JHEP 2104 for volume 04 of 2021), every eprint is taken to be an arXiv
+% identifier, and the bibliography is in citation order.  Unlike chetref.bst, all given-name
+% initials are printed.  Citations are sorted and compressed, as with the cite package.
+% ----------------------------------------------------------------------------
+% With nobib, stop reading here rather than skip the rest with \ifnewchet@bib ... \fi.
+% Skipping would still count conditionals, and memoir defines \ifinteger with \newif,
+% so the \ifinteger below would swallow the closing \fi and the whole document.
+\ifnewchet@bib\else
+  \expandafter\endinput
+\fi
+\RequirePackage[backend=biber,style=numeric-comp]{biblatex}
+
+\renewcommand*{\bibfont}{\small}
+
+\ExecuteBibliographyOptions{sorting=none,giveninits=true,maxbibnames=99,minbibnames=99}
+
+\providecommand*{\arxivref}[2]{\href{https://arxiv.org/abs/#1}{#2}}
+\providecommand*{\doiref}[2]{\href{https://doi.org/#1}{#2}}
+
+% Punctuation: every unit is separated by a comma, and entries end with a period
+\renewcommand*{\newunitpunct}{\addcomma\space}
+\renewcommand*{\newblockpunct}{\addcomma\space}
+\renewcommand*{\finentrypunct}{\addperiod}
+
+% Names: F.~Last, with commas between names and & before the last one (no serial comma)
+\DeclareNameAlias{default}{given-family}
+\DeclareNameAlias{author}{given-family}
+\DeclareNameAlias{editor}{given-family}
+\DeclareDelimFormat{multinamedelim}{\addcomma\space}
+\DeclareDelimFormat{finalnamedelim}{\addspace\&\space}
+\DeclareDelimFormat{andothersdelim}{\addspace}
+
+% Fields
+\DeclareFieldFormat*{title}{\textit{``#1''}}
+\DeclareFieldFormat{booktitle}{in \textit{``#1''}}
+\DeclareFieldFormat{edition}{\ifinteger{#1}{\mkbibordedition{#1}~edition}{#1\isdot}}
+\DeclareFieldFormat{pages}{p\adddot~#1}
+\DeclareFieldFormat{chet:firstpage}{\mkfirstpage{#1}}
+\DeclareFieldFormat{chet:doilink}{\iffieldundef{doi}{#1}{\doiref{\thefield{doi}}{#1}}}
+
+\ExplSyntaxOn
+% JHEP volume 04 of 2021 is printed as 2104
+\cs_new:Npn \chet_jhep_volume:nn #1#2
+  {
+    \bool_lazy_and:nnTF
+      { \int_compare_p:nNn { \str_count:n {#1} } = { 2 } }
+      { \int_compare_p:nNn { \str_count:n {#2} } = { 4 } }
+      { \str_range:nnn {#2} {3} {4} #1 }
+      {#1}
+  }
+\cs_new:Npn \chetvolume
+  {
+    \iffieldequalstr { journaltitle } { JHEP }
+      { \exp_args:Nee \chet_jhep_volume:nn { \thefield { volume } } { \thefield { year } } }
+      { \thefield { volume } }
+  }
+% An eprint without a scheme (e.g. hep-th/9711200) gets no arXiv: prefix
+\cs_new_protected:Npn \chet_print_eprint:n #1
+  {
+    \tl_set:Ne \l_tmpa_tl {#1}
+    \tl_if_in:NnTF \l_tmpa_tl { / }
+      { \tl_set_eq:NN \l_tmpb_tl \l_tmpa_tl }
+      { \tl_set:Ne \l_tmpb_tl { arXiv: \l_tmpa_tl } }
+    \texttt
+      {
+        \exp_args:NV \arxivref \l_tmpa_tl
+          {
+            \l_tmpb_tl
+            \iffieldundef { eprintclass } { } { \space\![\thefield{eprintclass}] }
+          }
+      }
+  }
+\cs_new_eq:NN \chetprinteprint \chet_print_eprint:n
+\ExplSyntaxOff
+
+\DeclareFieldFormat{eprint}{\chetprinteprint{#1}}
+\DeclareFieldFormat{url}{\url{#1}}
+
+% Building blocks
+\newbibmacro*{chet:authors}{%
+  \ifnameundef{author}{}{\printnames{author}}%
+  \newunit}
+
+\newbibmacro*{chet:editor}{%
+  \ifnameundef{editor}{}{\printtext{ed:\space\printnames{editor}}}%
+  \newunit}
+
+\newbibmacro*{chet:journal}{%
+  \iffieldundef{journaltitle}{}{%
+    \printtext[chet:doilink]{%
+      \printfield[noformat]{journaltitle}%
+      \iffieldundef{volume}{}{\space\textbf{\chetvolume}}%
+      \iffieldundef{pages}{}{\addcomma\space\printfield[chet:firstpage]{pages}}%
+      \iffieldundef{year}{}{\space(\printfield{year})}}}%
+  \newunit}
+
+\newbibmacro*{chet:publisher}{%
+  \iflistundef{publisher}{}{%
+    \printlist{publisher}%
+    \iffieldundef{year}{}{\space(\printfield{year})}}%
+  \newunit}
+
+\newbibmacro*{chet:tail}{%
+  \printfield{eprint}\newunit
+  \printfield{note}\newunit
+  \printfield{url}\newunit}
+
+% Drivers
+\DeclareBibliographyDriver{article}{%
+  \usebibmacro{begentry}%
+  \usebibmacro{chet:authors}%
+  \printfield{title}\newunit
+  \usebibmacro{chet:journal}%
+  \usebibmacro{chet:tail}%
+  \usebibmacro{finentry}}
+
+\DeclareBibliographyDriver{book}{%
+  \usebibmacro{begentry}%
+  \usebibmacro{chet:authors}%
+  \usebibmacro{chet:editor}%
+  \printfield{title}\newunit
+  \printfield{edition}\newunit
+  \usebibmacro{chet:publisher}%
+  \printlist{location}\newunit
+  \printfield{pages}\newunit
+  \usebibmacro{chet:tail}%
+  \usebibmacro{finentry}}
+
+\DeclareBibliographyDriver{incollection}{%
+  \usebibmacro{begentry}%
+  \usebibmacro{chet:authors}%
+  \printfield{title}\newunit
+  \printfield{booktitle}\newunit
+  \printfield{edition}\newunit
+  \usebibmacro{chet:editor}%
+  \printfield{pages}\newunit
+  \usebibmacro{chet:publisher}%
+  \printlist{location}\newunit
+  \usebibmacro{chet:tail}%
+  \usebibmacro{finentry}}
+
+\DeclareBibliographyAlias{inbook}{incollection}
+\DeclareBibliographyAlias{inproceedings}{incollection}
+
+\DeclareBibliographyDriver{misc}{%
+  \usebibmacro{begentry}%
+  \usebibmacro{chet:authors}%
+  \printfield{title}\newunit
+  \printfield{howpublished}\newunit
+  \usebibmacro{chet:tail}%
+  \usebibmacro{finentry}}
+
+\DeclareBibliographyAlias{online}{misc}
+\DeclareBibliographyAlias{unpublished}{misc}
+
+\DeclareBibliographyDriver{thesis}{%
+  \usebibmacro{begentry}%
+  \usebibmacro{chet:authors}%
+  \printfield{title}\newunit
+  \printtext{%
+    \printfield{type}%
+    \iflistundef{institution}{}{\addcomma\space\printlist{institution}}%
+    \iffieldundef{year}{}{\space(\printfield{year})}}%
+  \newunit
+  \usebibmacro{chet:tail}%
+  \usebibmacro{finentry}}
+
+\DeclareBibliographyDriver{report}{%
+  \usebibmacro{begentry}%
+  \usebibmacro{chet:authors}%
+  \printfield{title}\newunit
+  \printlist{institution}\newunit
+  \iffieldundef{number}
+    {\iffieldundef{year}{}{\printtext{(\printfield{year})}}}
+    {\printtext{Report No.~\printfield{number}\iffieldundef{year}{}{\space(\printfield{year})}}}%
+  \newunit
+  \usebibmacro{chet:tail}%
+  \usebibmacro{finentry}}
+
+\endinput
