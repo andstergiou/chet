@@ -27,6 +27,9 @@
 %                Computer Modern; the title is then set in newtxtext too
 %   stix2        set text and math in STIX Two instead of Computer Modern; the title
 %                is then set in STIX Two too.  Of newtx and stix2, the last one given wins.
+%   newtxgreek   take the math Greek letters from newtxmath, e.g. with stix2; newtx has them already
+%   fontsize=11.5pt  body size for article, report or book, which only offer 10pt, 11pt and
+%                12pt; the 11pt sizes and spacings are scaled to match
 % Any other option is handed to biblatex, e.g. \usepackage[backend=bibtex]{newchet}.
 % The margins can still be changed afterwards with \geometry{margin=3cm}.
 
@@ -40,7 +43,9 @@
 \newif\ifnewchet@titlesec   \newchet@titlesectrue
 \newif\ifnewchet@titlepage  \newchet@titlepagetrue
 \newif\ifnewchet@theorems   \newchet@theoremstrue
+\newif\ifnewchet@ntxgreek   \newchet@ntxgreekfalse
 \def\newchet@fonts{cm}
+\let\newchet@size\@empty
 
 \DeclareOption{nobib}{\newchet@bibfalse}
 \DeclareOption{nogeometry}{\newchet@geometryfalse}
@@ -51,7 +56,17 @@
 \DeclareOption{notheorems}{\newchet@theoremsfalse}
 \DeclareOption{newtx}{\def\newchet@fonts{newtx}}
 \DeclareOption{stix2}{\def\newchet@fonts{stix2}}
-\DeclareOption*{\PassOptionsToPackage{\CurrentOption}{biblatex}}
+\DeclareOption{newtxgreek}{\newchet@ntxgreektrue}
+% fontsize=<size> is caught here; every other unknown option goes to biblatex
+\DeclareOption*{\expandafter\newchet@option\CurrentOption=\@nil}
+\def\newchet@option#1=#2\@nil{%
+  \def\newchet@tempa{#1}\def\newchet@tempb{fontsize}%
+  \ifx\newchet@tempa\newchet@tempb
+    \newchet@setsize#2\@nil
+  \else
+    \PassOptionsToPackage{\CurrentOption}{biblatex}%
+  \fi}
+\def\newchet@setsize#1=\@nil{\edef\newchet@size{\number\dimexpr#1\relax}}
 \ProcessOptions\relax
 
 % tocloft cannot patch the table of contents of the AMS classes, and memoir has
@@ -119,6 +134,84 @@
     \RequirePackage{newtxmath}
   \else
     \RequirePackage{stix2}
+  \fi
+\fi
+% newtxgreek: the math Greek of newtxmath over STIX Two or Computer Modern.  Lowercase
+% italic comes from ntxmi and uppercase upright from ntxmia, at newtxmath's slots.  The
+% fonts get their own family names because the newtx .fd files need newtxmath's switches.
+\def\newchet@tempa{newtx}
+\ifnewchet@ntxgreek\ifx\newchet@fonts\newchet@tempa\else
+  \DeclareFontFamily{OML}{newchetntxmi}{\skewchar\font=127 }
+  \DeclareFontShape{OML}{newchetntxmi}{m}{it}{<-6.3> ntxmi5 <6.3-8.6> ntxmi7 <8.6-> ntxmi}{}
+  \DeclareFontShape{OML}{newchetntxmi}{b}{it}{<-6.3> ntxbmi5 <6.3-8.6> ntxbmi7 <8.6-> ntxbmi}{}
+  \DeclareFontFamily{U}{newchetntxmia}{\skewchar\font=127 }
+  \DeclareFontShape{U}{newchetntxmia}{m}{it}{<-> ntxmia}{}
+  \DeclareFontShape{U}{newchetntxmia}{b}{it}{<-> ntxbmia}{}
+  \DeclareSymbolFont{newchetgreek}{OML}{newchetntxmi}{m}{it}
+  \SetSymbolFont{newchetgreek}{bold}{OML}{newchetntxmi}{b}{it}
+  \DeclareSymbolFont{newchetGreek}{U}{newchetntxmia}{m}{it}
+  \SetSymbolFont{newchetGreek}{bold}{U}{newchetntxmia}{b}{it}
+  \@tempcnta=0
+  \@for\newchet@tempa:=Gamma,Delta,Theta,Lambda,Xi,Pi,Sigma,Upsilon,Phi,Psi,Omega\do{%
+    \expandafter\DeclareMathSymbol\csname\newchet@tempa\endcsname{\mathalpha}{newchetGreek}{\@tempcnta}%
+    \advance\@tempcnta\@ne}
+  \@for\newchet@tempa:=alpha,beta,gamma,delta,epsilon,zeta,eta,theta,iota,kappa,lambda,mu,nu,xi,pi,rho,sigma,tau,upsilon,phi,chi,psi,omega,varepsilon,vartheta,varpi,varrho,varsigma,varphi\do{%
+    \expandafter\DeclareMathSymbol\csname\newchet@tempa\endcsname{\mathord}{newchetgreek}{\@tempcnta}%
+    \advance\@tempcnta\@ne}
+  \DeclareMathSymbol{\varkappa}{\mathord}{newchetgreek}{129}
+\fi\fi
+% fontsize=<size>: the size commands and spacings of size11.clo, scaled by <size>/10.95pt,
+% so that \normalsize is exactly <size> and everything keeps its 11pt proportions.  KOMA has
+% its own fontsize option, and the other classes have their own size files.
+\ifx\newchet@size\@empty\else
+  \def\newchet@tempb{f}%
+  \@for\newchet@cls:=article,report,book\do{\@ifclassloaded{\newchet@cls}{\def\newchet@tempb{t}}{}}%
+  \if t\newchet@tempb
+    % \newchet@sc{x} is x pt scaled, without the unit; \newchet@sk{x}{y}{z} is the scaled
+    % glue x plus y minus z
+    \def\newchet@sc#1{\strip@pt\dimexpr#1\p@*\newchet@size/\number\dimexpr10.95\p@\relax\relax}
+    \def\newchet@sk#1#2#3{\newchet@sc{#1}\p@\@plus\newchet@sc{#2}\p@\@minus\newchet@sc{#3}\p@\relax}
+    % \newchet@defsize\cmd{size}{baselineskip}{extra} defines \cmd with the values expanded
+    \def\newchet@defsize#1#2#3#4{%
+      \begingroup\edef\newchet@tempa{\endgroup
+        \noexpand\DeclareRobustCommand\noexpand#1{%
+          \noexpand\@setfontsize\noexpand#1{\newchet@sc{#2}}{\newchet@sc{#3}}#4}}%
+      \newchet@tempa}
+    \def\newchet@listi#1#2#3#4#5#6{%
+      \def\noexpand\@listi{\leftmargin\leftmargini
+        \topsep\newchet@sk{#1}{#2}{#3}\parsep\newchet@sk{#4}{#5}{#6}\itemsep\parsep}}
+    \newchet@defsize\normalsize{10.95}{13.6}{%
+      \abovedisplayskip\newchet@sk{11}{3}{6}\abovedisplayshortskip\newchet@sk{0}{3}{0}%
+      \belowdisplayshortskip\newchet@sk{6.5}{3.5}{3}\belowdisplayskip\abovedisplayskip
+      \let\noexpand\@listi\noexpand\@listI}
+    \newchet@defsize\small{10}{12}{%
+      \abovedisplayskip\newchet@sk{10}{2}{5}\abovedisplayshortskip\newchet@sk{0}{3}{0}%
+      \belowdisplayshortskip\newchet@sk{6}{3}{3}\belowdisplayskip\abovedisplayskip
+      \newchet@listi{6}{2}{2}{3}{2}{1}}
+    \newchet@defsize\footnotesize{9}{11}{%
+      \abovedisplayskip\newchet@sk{8}{2}{4}\abovedisplayshortskip\newchet@sk{0}{1}{0}%
+      \belowdisplayshortskip\newchet@sk{4}{2}{2}\belowdisplayskip\abovedisplayskip
+      \newchet@listi{4}{2}{2}{2}{1}{1}}
+    \newchet@defsize\scriptsize{8}{9.5}{}
+    \newchet@defsize\tiny{6}{7}{}
+    \newchet@defsize\large{12}{14}{}
+    \newchet@defsize\Large{14.4}{18}{}
+    \newchet@defsize\LARGE{17.28}{22}{}
+    \newchet@defsize\huge{20.74}{25}{}
+    \newchet@defsize\Huge{24.88}{30}{}
+    \edef\@listI{\leftmargin\leftmargini
+      \parsep\newchet@sk{4.5}{2}{1}\topsep\newchet@sk{9}{3}{5}\itemsep\newchet@sk{4.5}{2}{1}}
+    \let\@listi\@listI
+    \@listi
+    \setlength\topskip{\newchet@sc{10.95}\p@}
+    \if@twocolumn\else\setlength\parindent{\newchet@sc{17}\p@}\fi
+    \setlength\footnotesep{\newchet@sc{7.7}\p@}
+    \setlength{\skip\footins}{\newchet@sk{10}{4}{2}}
+    % \normalfont first, or the class's font is loaded at the new size
+    \normalfont\normalsize
+  \else
+    \PackageWarningNoLine{newchet}{fontsize only works with article, report and book,%
+      \MessageBreak so it is ignored; KOMA classes have their own fontsize option}%
   \fi
 \fi
 \RequirePackage{microtype}

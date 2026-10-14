@@ -142,8 +142,10 @@ For grouped citations, load `\usepackage[mcite]{newchet}` and use biblatex's syn
 | `notheorems` | Do not define `theorem`, `proposition` and `conjecture` |
 | `newtx` | Use newtxtext and newtxmath (Times) instead of Computer Modern; the title is then set in newtxtext too |
 | `stix2` | Use STIX Two for text and math instead of Computer Modern; the title is then set in STIX Two too |
+| `newtxgreek` | Take the math Greek letters from newtxmath, for example with `stix2`; `newtx` has them already |
+| `fontsize=11.5pt` | Set the body size to any value with `article`, `report` or `book`, which only offer 10pt, 11pt and 12pt |
 
-The default font is Computer Modern. If both `newtx` and `stix2` are given, the last one wins. Both work with pdflatex, so papers still compile on arXiv. STIX Two has no typewriter font, so `\texttt` stays in Computer Modern typewriter. The title is 1.894 times the body size, the ratio of `\huge` to the body text at 11pt. It is 20.74pt at 11pt and 22.73pt at 12pt.
+The default font is Computer Modern. If both `newtx` and `stix2` are given, the last one wins. Both work with pdflatex, so papers still compile on arXiv. STIX Two has no typewriter font, so `\texttt` stays in Computer Modern typewriter. The option `newtxgreek` replaces the lowercase italic and uppercase upright Greek letters, and `\varkappa`, by those of newtxmath. The rest of the math keeps its font. The option `fontsize` scales the sizes and spacings of the 11pt class option, so `\normalsize` is exactly the size given and `\small`, `\large` and the others keep their 11pt proportions. It overrides the class's own size option. KOMA classes have their own `fontsize` option, so newchet ignores its option there. The title is 1.894 times the body size, the ratio of `\huge` to the body text at 11pt. It is 20.74pt at 11pt and 22.73pt at 12pt.
 
 Any other option is passed to biblatex, for example `\usepackage[backend=bibtex]{newchet}`. Under the AMS, revtex, memoir and KOMA classes, newchet switches off tocloft, titlesec or the title page where they would clash with the class, and prints a warning.
 
