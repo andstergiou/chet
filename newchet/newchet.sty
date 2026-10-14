@@ -191,6 +191,15 @@
   \titleformat{\section}{\normalfont\large\bfseries}{\thesection.}{0.5em}{}
   \titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection.}{0.5em}{}
   \titleformat{\subsubsection}{\normalfont\normalsize\itshape}{\thesubsubsection.}{0.5em}{}
+  % Appendices are headed "Appendix A.", as in chet.sty, in the heading and in the table
+  % of contents.  Classes with chapters already label their appendix chapters this way.
+  \providecommand*{\appendixname}{Appendix}
+  \@ifundefined{chapter}{%
+    \g@addto@macro\appendix{%
+      \titleformat{\section}{\normalfont\large\bfseries}{\appendixname~\thesection.}{0.5em}{}%
+      \ifnewchet@toc
+        \addtocontents{toc}{\protect\renewcommand{\protect\cftsecpresnum}{\protect\appendixname~}}%
+      \fi}}{}
 \fi
 
 % ----------------------------------------------------------------------------
