@@ -354,17 +354,18 @@
 
 \renewcommand*{\bibfont}{\small}
 
-% The References heading is centred, as in chet.sty.  titlesec's default shape ignores
+% The References heading is centred and set at the body size, like the Acknowledgements
+% heading, as in chet.sty.  titlesec's default shape ignores
 % \centering in the title, so with titlesec the heading gets a centred format of its own.
 % The space below it is cut, as chet.sty does with \vspace{-0.4cm}, so the first entry sits
 % about 18.5pt below the heading's baseline at 12pt, as in chet.sty.
 \defbibheading{bibliography}[\refname]{%
   \ifnewchet@titlesec
-    {\titleformat{name=\section,numberless}[block]{\normalfont\large\bfseries\filcenter}{}{0pt}{}%
+    {\titleformat{name=\section,numberless}[block]{\normalfont\normalsize\bfseries\filcenter}{}{0pt}{}%
      \titlespacing*{\section}{0pt}{3.5ex plus 1ex minus .2ex}{0.8ex plus .2ex}%
      \section*{#1}}%
   \else
-    \section*{\centering #1}\vspace{-7pt}%
+    \section*{\centering\normalsize #1}\vspace{-7pt}%
   \fi
   \markboth{\MakeUppercase{#1}}{\MakeUppercase{#1}}}
 
