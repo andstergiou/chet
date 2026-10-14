@@ -140,6 +140,10 @@ For grouped citations, load `\usepackage[mcite]{newchet}` and use biblatex's syn
 | `notitlesec` | Do not load titlesec or reformat the section headings |
 | `notitlepage` | Keep the class's own `\maketitle` and abstract environment |
 | `notheorems` | Do not define `theorem`, `proposition` and `conjecture` |
+| `newtx` | Use newtxtext and newtxmath (Times) instead of Computer Modern; the title is then set in newtxtext too |
+| `stix2` | Use STIX Two for text and math instead of Computer Modern; the title is then set in STIX Two too |
+
+The default font is Computer Modern. If both `newtx` and `stix2` are given, the last one wins. Both work with pdflatex, so papers still compile on arXiv. STIX Two has no typewriter font, so `\texttt` stays in Computer Modern typewriter. The title is 1.894 times the body size, the ratio of `\huge` to the body text at 11pt. It is 20.74pt at 11pt and 22.73pt at 12pt.
 
 Any other option is passed to biblatex, for example `\usepackage[backend=bibtex]{newchet}`. Under the AMS, revtex, memoir and KOMA classes, newchet switches off tocloft, titlesec or the title page where they would clash with the class, and prints a warning.
 

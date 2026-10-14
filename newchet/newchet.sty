@@ -23,6 +23,10 @@
 %   notitlesec   do not load titlesec or reformat the section headings
 %   notitlepage  keep the class's own \maketitle and abstract environment
 %   notheorems   do not define theorem, proposition, conjecture
+%   newtx        set text and math in newtxtext and newtxmath (Times) instead of
+%                Computer Modern; the title is then set in newtxtext too
+%   stix2        set text and math in STIX Two instead of Computer Modern; the title
+%                is then set in STIX Two too.  Of newtx and stix2, the last one given wins.
 % Any other option is handed to biblatex, e.g. \usepackage[backend=bibtex]{newchet}.
 % The margins can still be changed afterwards with \geometry{margin=3cm}.
 
@@ -36,6 +40,7 @@
 \newif\ifnewchet@titlesec   \newchet@titlesectrue
 \newif\ifnewchet@titlepage  \newchet@titlepagetrue
 \newif\ifnewchet@theorems   \newchet@theoremstrue
+\def\newchet@fonts{cm}
 
 \DeclareOption{nobib}{\newchet@bibfalse}
 \DeclareOption{nogeometry}{\newchet@geometryfalse}
@@ -44,6 +49,8 @@
 \DeclareOption{notitlesec}{\newchet@titlesecfalse}
 \DeclareOption{notitlepage}{\newchet@titlepagefalse}
 \DeclareOption{notheorems}{\newchet@theoremsfalse}
+\DeclareOption{newtx}{\def\newchet@fonts{newtx}}
+\DeclareOption{stix2}{\def\newchet@fonts{stix2}}
 \DeclareOption*{\PassOptionsToPackage{\CurrentOption}{biblatex}}
 \ProcessOptions\relax
 
@@ -90,8 +97,30 @@
 \ifnewchet@geometry
   \RequirePackage[margin=2.4cm]{geometry}
 \fi
+% fix-cm makes Computer Modern available at every size, so the title and the math in it
+% can follow the body size (see \newchet@titlesize).
+\def\newchet@tempa{cm}
+\ifx\newchet@fonts\newchet@tempa
+  \RequirePackage{fix-cm}
+  % fix-cm warns when it replaces bold typewriter by medium, which t1cmtt.fd does silently
+  \DeclareFontShape{T1}{cmtt}{bx}{n}{<->ssub*cmtt/m/n}{}
+  \DeclareFontShape{T1}{cmtt}{bx}{it}{<->ssub*cmtt/m/it}{}
+\fi
 \RequirePackage[T1]{fontenc}
-\RequirePackage{amsmath,amssymb,amsthm}
+% newtxmath and stix2 provide the amssymb symbols themselves and want amsmath and amsthm
+% loaded first
+\ifx\newchet@fonts\newchet@tempa
+  \RequirePackage{amsmath,amssymb,amsthm}
+\else
+  \RequirePackage{amsmath,amsthm}
+  \def\newchet@tempa{newtx}
+  \ifx\newchet@fonts\newchet@tempa
+    \RequirePackage{newtxtext}
+    \RequirePackage{newtxmath}
+  \else
+    \RequirePackage{stix2}
+  \fi
+\fi
 \RequirePackage{microtype}
 \RequirePackage{booktabs}
 \RequirePackage{enumitem}
@@ -171,12 +200,26 @@
 % Title font: the 10pt design of Computer Modern scaled up.  Its strokes are heavier
 % than those of the large design sizes, which gives the dark harvmac-like title.
 % chet.sty maps cmr10 into T1, which has the wrong glyph layout; ecrm1000 is the T1
-% version of the same design.
-\DeclareFontFamily{T1}{newchettitle}{}
-\DeclareFontShape{T1}{newchettitle}{m}{n}{<->ecrm1000}{}
-\newcommand*{\newchettitlefont}{\fontencoding{T1}\fontfamily{newchettitle}\fontseries{m}\fontshape{n}\selectfont}
+% version of the same design.  With newtx or stix2 the title is in the text roman instead.
+\def\newchet@tempa{cm}
+\ifx\newchet@fonts\newchet@tempa
+  \DeclareFontFamily{T1}{newchettitle}{}
+  \DeclareFontShape{T1}{newchettitle}{m}{n}{<->ecrm1000}{}
+  \def\newchet@titlefamily{newchettitle}
+\else
+  \def\newchet@titlefamily{\rmdefault}
+\fi
+\newcommand*{\newchettitlefont}{\fontencoding{T1}\fontfamily{\newchet@titlefamily}\fontseries{m}\fontshape{n}\selectfont}
 % Math in the title: $\titlemath{...}$
-\DeclareMathAlphabet{\titlemath}{T1}{newchettitle}{m}{n}
+\DeclareMathAlphabet{\titlemath}{T1}{\newchet@titlefamily}{m}{n}
+% Title size: 1.894 times the body size, the ratio of \huge to \normalsize at 11pt
+% (20.74pt).  \huge itself jumps to 24.88pt at 12pt, which makes the title too large.
+\newcommand*{\newchet@titlesize}{%
+  \normalsize
+  \@tempdima=1.894\dimexpr\f@size pt\relax
+  % \fontsize uses \@tempdimb itself, so expand both values before calling it
+  \edef\newchet@tempa{{\the\@tempdima}{\the\dimexpr1.205\@tempdima\relax}}%
+  \expandafter\fontsize\newchet@tempa\selectfont}
 
 \newcommand*{\preprint}[1]{\gdef\newchet@preprint{#1}}
 \newcommand*{\affiliation}[1]{\gdef\newchet@affiliation{#1}}
@@ -228,7 +271,7 @@
     \end{flushright}
     \vspace{2cm}
     \begin{center}
-      {\huge\newchettitlefont\@title\par}
+      {\newchet@titlesize\newchettitlefont\@title\par}
       \bigskip\bigskip\bigskip
       \@author\par
       \bigskip

@@ -11,6 +11,8 @@ All notable changes to the chet package are recorded here.
 - `acknowledgements` environment and `\ack`, with British spelling by default
 - The References heading is centred, as in `chet.sty`, with or without titlesec, and the space below it is cut to match `chet.sty`
 - Theorem notes are bold in the `plain` and `definition` styles, matching the head
+- The title is 1.894 times the body size, the ratio `\huge` has at 11pt, instead of `\huge`, which jumps to 24.88pt at 12pt; with Computer Modern, fix-cm supplies the in-between sizes, also for math in the title
+- Options `newtx` and `stix2` set text and math in newtx (Times) or STIX Two instead of Computer Modern; the title and `\titlemath` use the same text font, and the last of the two options given wins
 - Options `nobib`, `nogeometry`, `nohyperref`, `notoc`, `notitlesec`, `notitlepage` and `notheorems`; incompatible parts are switched off automatically for the AMS, revtex, memoir and KOMA classes
 
 ## [2.3b] — 2026-07-11
