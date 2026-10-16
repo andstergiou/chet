@@ -183,6 +183,23 @@
     \advance\@tempcnta\@ne}
   \DeclareMathSymbol{\varkappa}{\mathord}{newchetgreek}{129}
 \fi\fi
+% Script sizes that LaTeX calculates, for sizes it does not declare (fontsize=, the
+% title), get the 5pt minimum of its declared ones, but never exceed the text size.
+% This is the kernel's \calculate@math@sizes with the four \ifdim lines added.
+\def\calculate@math@sizes{%
+  \@font@info{Calculating\space math\space sizes\space for\space size\space <\f@size>}%
+  \dimen@\f@size\p@
+  \@tempdimb\defaultscriptratio\dimen@
+  \dimen@\defaultscriptscriptratio\dimen@
+  \ifdim\@tempdimb<5\p@ \@tempdimb5\p@ \fi
+  \ifdim\dimen@<5\p@ \dimen@5\p@ \fi
+  \ifdim\@tempdimb>\f@size\p@ \@tempdimb\f@size\p@ \fi
+  \ifdim\dimen@>\f@size\p@ \dimen@\f@size\p@ \fi
+  \expandafter\xdef\csname S@\f@size\endcsname{%
+    \gdef\noexpand\tf@size{\f@size}%
+    \gdef\noexpand\sf@size{\strip@pt\@tempdimb}%
+    \gdef\noexpand\ssf@size{\strip@pt\dimen@}%
+    \noexpand\math@fontstrue}}
 % fontsize=<size>: the size commands and spacings of size11.clo, scaled by <size>/10.95pt,
 % so that \normalsize is exactly <size> and everything keeps its 11pt proportions.  KOMA has
 % its own fontsize option, and the other classes have their own size files.
