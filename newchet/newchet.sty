@@ -113,14 +113,13 @@
   \RequirePackage[margin=2.4cm]{geometry}
 \fi
 % fix-cm makes Computer Modern available at every size, so the title and the math in it
-% can follow the body size (see \newchet@titlesize).
+% can follow the body size (see \newchet@titlesize).  It is loaded with every font option,
+% since STIX Two has no sans serif and the caption labels are then set in cmss.
+\RequirePackage{fix-cm}
+% fix-cm warns when it replaces bold typewriter by medium, which t1cmtt.fd does silently
+\DeclareFontShape{T1}{cmtt}{bx}{n}{<->ssub*cmtt/m/n}{}
+\DeclareFontShape{T1}{cmtt}{bx}{it}{<->ssub*cmtt/m/it}{}
 \def\newchet@tempa{cm}
-\ifx\newchet@fonts\newchet@tempa
-  \RequirePackage{fix-cm}
-  % fix-cm warns when it replaces bold typewriter by medium, which t1cmtt.fd does silently
-  \DeclareFontShape{T1}{cmtt}{bx}{n}{<->ssub*cmtt/m/n}{}
-  \DeclareFontShape{T1}{cmtt}{bx}{it}{<->ssub*cmtt/m/it}{}
-\fi
 \RequirePackage[T1]{fontenc}
 % newtxmath and stix2 provide the amssymb symbols themselves and want amsmath and amsthm
 % loaded first
@@ -134,6 +133,9 @@
     \RequirePackage{newtxmath}
   \else
     \RequirePackage{stix2}
+    % STIX Two has no typewriter, and the x-height of cmtt is 9% below that of STIX Two
+    % Text.  newtxtt has a bold, and scaled=1.02 matches the x-heights.
+    \RequirePackage[scaled=1.02]{newtxtt}
   \fi
 \fi
 % newtxgreek: the math Greek of newtxmath over STIX Two or Computer Modern.  Lowercase
