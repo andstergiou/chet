@@ -16,6 +16,7 @@ All notable changes to the chet package are recorded here.
 - Options `newtx` and `stix2` set text and math in newtx (Times) or STIX Two instead of Computer Modern; the title and `\titlemath` use the same text font, and the last of the two options given wins
 - With `stix2`, typewriter text is set in newtxtt, which has a bold, scaled by 1.02 to match the x-height of STIX Two Text; fix-cm is now loaded with every font option, so the Computer Modern Sans caption labels follow any body size
 - With `stix2`, the numerator and denominator of an inline fraction sit 0.08em from the bar instead of about 0.3em, so inline fractions no longer run into the lines around them; scripts are 75% and second-level scripts 60% of the size from 9pt up, the ratios stix2 uses at 10pt, instead of LaTeX's fixed 8pt and 6pt at 11pt and 12pt
+- With `stix2`, `\mathbb` is the AMS blackboard bold scaled to 97%, through `\usepackage[bb=ams,bbscaled=0.97]{mathalpha}` at the end of the preamble, unless the document loads mathalpha itself
 - Script sizes that LaTeX calculates, for sizes it does not declare, such as `\tiny` with `fontsize=`, are at least 5pt, as its declared ones are, but never larger than the text
 - Option `newtxgreek` takes the math Greek letters from newtxmath, for example on top of STIX Two
 - Option `fontsize=<size>` sets any body size with `article`, `report` or `book`, by scaling the sizes and spacings of the 11pt class option
