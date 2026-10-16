@@ -137,6 +137,26 @@
     % STIX Two has no typewriter, and the x-height of cmtt is 9% below that of STIX Two
     % Text.  newtxtt has a bold, and scaled=1.02 matches the x-heights.
     \RequirePackage[scaled=1.02]{newtxtt}
+    % STIX Two Math puts the numerator and denominator of a text-style fraction 0.585em
+    % above and below the baseline.  Their gaps to the bar are then about 0.3em, more than
+    % twice those of Computer Modern, and inline fractions run into the lines around them.
+    % Reset both shifts at every size, for gaps of 0.08em to the bar.  TeX still keeps
+    % each gap at least one rule thickness for taller numerators and denominators.
+    \def\newchet@stixfrac#1{%
+      \fontdimen9#1=0.372\fontdimen6#1%
+      \fontdimen12#1=0.347\fontdimen6#1}
+    \every@math@size\expandafter{\the\every@math@size
+      \newchet@stixfrac{\textfont\tw@}%
+      \newchet@stixfrac{\scriptfont\tw@}%
+      \newchet@stixfrac{\scriptscriptfont\tw@}}
+    % stix2 declares the script sizes only for 10pt text, as 75% and 60% of it.  Use the
+    % same ratios at the other sizes, instead of LaTeX's 70% and 50%.  LaTeX also declares
+    % fixed sizes, such as 8pt and 6pt at 11pt and 12pt, so drop those from 9pt up.  Below
+    % 9pt, keep them, since 60% would fall under their 5pt minimum.
+    \def\defaultscriptratio{.75}
+    \def\defaultscriptscriptratio{.6}
+    \@for\newchet@tempa:=9,10.95,12,14.4,17.28,20.74,24.88\do{%
+      \expandafter\let\csname S@\newchet@tempa\endcsname\relax}
   \fi
 \fi
 % newtxgreek: the math Greek of newtxmath over STIX Two or Computer Modern.  Lowercase

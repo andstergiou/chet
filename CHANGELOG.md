@@ -15,6 +15,7 @@ All notable changes to the chet package are recorded here.
 - The title is 1.894 times the body size, the ratio `\huge` has at 11pt, instead of `\huge`, which jumps to 24.88pt at 12pt; with Computer Modern, fix-cm supplies the in-between sizes, also for math in the title
 - Options `newtx` and `stix2` set text and math in newtx (Times) or STIX Two instead of Computer Modern; the title and `\titlemath` use the same text font, and the last of the two options given wins
 - With `stix2`, typewriter text is set in newtxtt, which has a bold, scaled by 1.02 to match the x-height of STIX Two Text; fix-cm is now loaded with every font option, so the Computer Modern Sans caption labels follow any body size
+- With `stix2`, the numerator and denominator of an inline fraction sit 0.08em from the bar instead of about 0.3em, so inline fractions no longer run into the lines around them; scripts are 75% and second-level scripts 60% of the size from 9pt up, the ratios stix2 uses at 10pt, instead of LaTeX's fixed 8pt and 6pt at 11pt and 12pt
 - Option `newtxgreek` takes the math Greek letters from newtxmath, for example on top of STIX Two
 - Option `fontsize=<size>` sets any body size with `article`, `report` or `book`, by scaling the sizes and spacings of the 11pt class option
 - Options `nobib`, `nogeometry`, `nohyperref`, `notoc`, `notitlesec`, `notitlepage` and `notheorems`; incompatible parts are switched off automatically for the AMS, revtex, memoir and KOMA classes
