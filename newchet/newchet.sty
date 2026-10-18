@@ -27,8 +27,8 @@
 %                Computer Modern; the title is then set in newtxtext too
 %   stix2        set text and math in STIX Two instead of Computer Modern; the title
 %                is then set in STIX Two too.  Typewriter text is set in newtxtt, since
-%                STIX Two has none.  \mathbb is the AMS blackboard bold, loaded through
-%                \usepackage[bb=ams,bbscaled=0.97]{mathalpha}, unless the document loads
+%                STIX Two has none.  \mathbb is the blackboard bold of DSSerif, loaded through
+%                \usepackage[bb=dsserif,bbscaled=1.025]{mathalpha}, unless the document loads
 %                mathalpha itself.  Of newtx and stix2, the last one given wins.
 %   newtxgreek   take the math Greek letters from newtxmath, e.g. with stix2; newtx has them already
 %   fontsize=11.5pt  body size for article, report or book, which only offer 10pt, 11pt and
@@ -159,13 +159,15 @@
     \def\defaultscriptscriptratio{.6}
     \@for\newchet@tempa:=9,10.95,12,14.4,17.28,20.74,24.88\do{%
       \expandafter\let\csname S@\newchet@tempa\endcsname\relax}
-    % \mathbb is the AMS blackboard bold (msbm), as with Computer Modern, instead of that of
-    % STIX Two.  The capitals of msbm are 5% taller than the upright ones of STIX Two, and
-    % bbscaled=0.97 leaves them 2% taller.  mathalpha is loaded at the end of the preamble,
-    % and only if the document has not loaded it, so a document can still choose its own
-    % options, e.g. \usepackage[bb=stixtwo]{mathalpha} for the blackboard bold of STIX Two.
+    % \mathbb is the blackboard bold of DSSerif.  It has a bold weight, so \mathbb is bold in
+    % bold text, where \bfseries also switches to \boldmath (below); the AMS blackboard bold
+    % (msbm) and that of STIX Two have none.  The capitals of DSSerif are 1.5% shorter than
+    % the upright ones of STIX Two, and bbscaled=1.025 leaves them 0.9% taller.  mathalpha is
+    % loaded at the end of the preamble, and only if the document has not loaded it, so a
+    % document can still choose its own options, e.g. \usepackage[bb=ams]{mathalpha} for the
+    % AMS blackboard bold.
     \AddToHook{begindocument/before}{%
-      \@ifpackageloaded{mathalpha}{}{\RequirePackage[bb=ams,bbscaled=0.97]{mathalpha}}}
+      \@ifpackageloaded{mathalpha}{}{\RequirePackage[bb=dsserif,bbscaled=1.025]{mathalpha}}}
   \fi
 \fi
 % newtxgreek: the math Greek of newtxmath over STIX Two or Computer Modern.  Lowercase
