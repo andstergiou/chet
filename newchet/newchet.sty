@@ -24,12 +24,15 @@
 %   notitlepage  keep the class's own \maketitle and abstract environment
 %   notheorems   do not define theorem, proposition, conjecture
 %   newtx        set text and math in newtxtext and newtxmath (Times) instead of
-%                Computer Modern; the title is then set in newtxtext too
+%                Computer Modern; the title is then set in newtxtext too.  Word and line
+%                spacing are widened as with stix2.
 %   stix2        set text and math in STIX Two instead of Computer Modern; the title
 %                is then set in STIX Two too.  Typewriter text is set in newtxtt, since
 %                STIX Two has none.  \mathbb is the blackboard bold of DSSerif, loaded through
 %                \usepackage[bb=dsserif,bbscaled=1.025]{mathalpha}, unless the document loads
-%                mathalpha itself.  Of newtx and stix2, the last one given wins.
+%                mathalpha itself.  Word and line spacing are widened as with Computer
+%                Modern, but lines are spread by 1.15 instead of 1.25.  Of newtx and
+%                stix2, the last one given wins.
 %   newtxgreek   take the math Greek letters from newtxmath, e.g. with stix2; newtx has them already
 %   fontsize=11.5pt  body size for article, report or book, which only offer 10pt, 11pt and
 %                12pt; the 11pt sizes and spacings are scaled to match
@@ -265,30 +268,42 @@
       \MessageBreak so it is ignored; KOMA classes have their own fontsize option}%
   \fi
 \fi
-% Word and line spacing with Computer Modern, as in chet.sty, so the text is less crammed:
-% interword spaces 1.2 times wider, lines spread by 1.25, and 5pt instead of 3pt between
-% the rows of multiline equations.  chet.sty widens the spaces of the body font alone.
-% Here every Computer Modern roman font is widened when it is first selected, in every
-% size, series and shape, so italics, bold, footnotes and the bibliography match the body.
-% \fontdimen assignments are global, so a marker for each font stops it being widened
-% twice.  Typewriter and sans serif keep their spacing.  A \linespread or \jot set in the
-% document overrides the values here.
+% Word and line spacing, as in chet.sty, so the text is less crammed: interword spaces 1.2
+% times wider, lines spread by 1.25 with Computer Modern and by 1.15 with STIX Two and
+% newtx, and 5pt instead of 3pt between the rows of multiline equations.  chet.sty widens
+% the spaces of the body font alone.  Here every roman font of the text families is widened
+% when it is first selected, in every size, series and shape, so italics, bold, footnotes
+% and the bibliography match the body.  \fontdimen assignments are global, so a marker for
+% each font stops it being widened twice.  Typewriter and sans serif keep their spacing.
+% A \linespread or \jot set in the document overrides the values here.
 \def\newchet@tempa{cm}
 \ifx\newchet@fonts\newchet@tempa
-  \def\newchet@cmr{cmr}
-  \def\newchet@widenspace{%
-    \ifx\f@family\newchet@cmr
-      \expandafter\ifx\csname newchet@wide@\fontname\font\endcsname\relax
-        \fontdimen2\font=1.2\fontdimen2\font
-        \expandafter\gdef\csname newchet@wide@\fontname\font\endcsname{}%
-      \fi
-    \fi}
-  \AddToHook{selectfont}{\newchet@widenspace}
-  % The current font was selected before the hook existed
-  \newchet@widenspace
+  \def\newchet@widefamilies{cmr}
   \linespread{1.25}
-  \setlength{\jot}{5pt}
+\else
+  \def\newchet@tempa{stix2}
+  \ifx\newchet@fonts\newchet@tempa
+    \def\newchet@widefamilies{stix2}
+  \else
+    % newtxtext has a roman family for each figure style, e.g. ntxtlf for tabular lining
+    % figures, and an ntxth- version of each for its theoremfont option
+    \def\newchet@widefamilies{ntxlf,ntxtlf,ntxosf,ntxtosf,ntxth-lf,ntxth-tlf,ntxth-osf,ntxth-tosf}
+  \fi
+  \linespread{1.15}
 \fi
+\@for\newchet@tempa:=\newchet@widefamilies\do{%
+  \expandafter\let\csname newchet@widefamily@\newchet@tempa\endcsname\@empty}
+\def\newchet@widenspace{%
+  \ifcsname newchet@widefamily@\f@family\endcsname
+    \expandafter\ifx\csname newchet@wide@\fontname\font\endcsname\relax
+      \fontdimen2\font=1.2\fontdimen2\font
+      \expandafter\gdef\csname newchet@wide@\fontname\font\endcsname{}%
+    \fi
+  \fi}
+\AddToHook{selectfont}{\newchet@widenspace}
+% The current font was selected before the hook existed
+\newchet@widenspace
+\setlength{\jot}{5pt}
 \RequirePackage{microtype}
 \RequirePackage{booktabs}
 \RequirePackage{enumitem}
