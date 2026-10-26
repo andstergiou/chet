@@ -16,3 +16,6 @@
 
 # Generated bib file (produced by filecontents in chetdoc.tex)
 doc/chetdocbib.bib
+
+# Compiled output of the subscript test, rebuilt by make newchet-subscripts-test
+test/newchet_subscripts_test.pdf

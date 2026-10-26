@@ -14,6 +14,11 @@
 %
 % Install into the personal tree so that it works from any directory:
 %   ~/Library/texmf/tex/latex/newchet/newchet.sty
+% With stix2, newchet also uses two virtual fonts, which bring subscripts closer to italic
+% letters.  They go into the same tree, or into the document folder:
+%   ~/Library/texmf/fonts/tfm/newchet/newchet-stix2-mathit{,-bold}.tfm
+%   ~/Library/texmf/fonts/vf/newchet/newchet-stix2-mathit{,-bold}.vf
+% make install-newchet in the chet repository installs all five files (into ~/texmf on Linux).
 %
 % Options
 %   nobib        do not load biblatex (use with revtex, bst files, or no bibliography)
@@ -34,13 +39,15 @@
 %                Modern, but lines are spread by 1.15 instead of 1.25.  Of newtx and
 %                stix2, the last one given wins.
 %   newtxgreek   take the math Greek letters from newtxmath, e.g. with stix2; newtx has them already
+%   nosubscriptkerns  with stix2, keep the subscript placement of the stix2 package instead of
+%                that of newchet's virtual fonts (see the font setup below)
 %   fontsize=11.5pt  body size for article, report or book, which only offer 10pt, 11pt and
 %                12pt; the 11pt sizes and spacings are scaled to match
 % Any other option is handed to biblatex, e.g. \usepackage[backend=bibtex]{newchet}.
 % The margins can still be changed afterwards with \geometry{margin=3cm}.
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{newchet}[2026/10/09 v1.0 personal article style with chetref-like bibliography]
+\ProvidesPackage{newchet}[2026/10/26 v1.0 personal article style with chetref-like bibliography]
 
 \newif\ifnewchet@bib        \newchet@bibtrue
 \newif\ifnewchet@geometry   \newchet@geometrytrue
@@ -50,6 +57,7 @@
 \newif\ifnewchet@titlepage  \newchet@titlepagetrue
 \newif\ifnewchet@theorems   \newchet@theoremstrue
 \newif\ifnewchet@ntxgreek   \newchet@ntxgreekfalse
+\newif\ifnewchet@subkerns   \newchet@subkernstrue
 \def\newchet@fonts{cm}
 \let\newchet@size\@empty
 
@@ -63,6 +71,7 @@
 \DeclareOption{newtx}{\def\newchet@fonts{newtx}}
 \DeclareOption{stix2}{\def\newchet@fonts{stix2}}
 \DeclareOption{newtxgreek}{\newchet@ntxgreektrue}
+\DeclareOption{nosubscriptkerns}{\newchet@subkernsfalse}
 % fontsize=<size> is caught here; every other unknown option goes to biblatex
 \DeclareOption*{\expandafter\newchet@option\CurrentOption=\@nil}
 \def\newchet@option#1=#2\@nil{%
@@ -171,6 +180,61 @@
     % AMS blackboard bold.
     \AddToHook{begindocument/before}{%
       \@ifpackageloaded{mathalpha}{}{\RequirePackage[bb=dsserif,bbscaled=1.025]{mathalpha}}}
+    % TeX attaches a subscript at the width of a letter.  It attaches a superscript at the
+    % width plus the italic correction.  The stix2 metrics give most italic capitals a width
+    % that includes nearly all of their overhang (V: 0.696em, italic correction 0.045em).
+    % Subscripts then sit beyond the top-right corner of V, W, Y, T, F, P and similar
+    % letters, far from their foot.  The virtual fonts newchet-stix2-mathit and
+    % newchet-stix2-mathit-bold draw the same glyphs at the same places.  In them, 22 regular
+    % and 15 bold Latin letters are narrower and have a larger italic correction, by the
+    % same amount.  So only the subscripts move.  Superscripts, primes, accents and letters
+    % side by side keep their places.  Limits are the exception.  TeX offsets them by half
+    % the italic correction, so the label of \stackrel{*}{T} and the limits of
+    % \mathop{T}\limits move by half as much.  \overset and \underset are not affected.  The
+    % amounts come from the math italic of SticksToo (V: 0.11em), which newtxmath uses with
+    % its option stickstoo.  newchet-subscripts.py makes the fonts.
+    % pdfTeX loads fonts through its font paths, not through TEXINPUTS.  So \IfFileExists
+    % alone cannot tell whether they will load.  kpsewhich searches the font paths, and TeX
+    % Live's restricted shell escape allows it.  The calls give -format.  Without it,
+    % kpsewhich looks up a name ending in .vf on OVFFONTS, the path of Omega's virtual
+    % fonts, and not on VFFONTS, which pdfTeX uses and make newchet-subscripts-test sets.
+    % If kpsewhich cannot run, only the document folder is checked, since it is on every
+    % font path.  All four files must be found, or the fonts are not used.
+    \ifnewchet@subkerns
+      \def\newchet@subfonts{newchet-stix2-mathit.tfm,newchet-stix2-mathit.vf,%
+        newchet-stix2-mathit-bold.tfm,newchet-stix2-mathit-bold.vf}
+      \def\newchet@found{0}
+      % One line of output for each file kpsewhich finds; \readline takes the paths verbatim
+      \def\newchet@countlines{%
+        \readline\@inputcheck to\newchet@tempa
+        \ifx\newchet@tempa\@empty\else\xdef\newchet@found{\the\numexpr\newchet@found+1}\fi
+        \ifeof\@inputcheck\else\expandafter\newchet@countlines\fi}
+      \def\newchet@kpsewhich#1{%
+        \begingroup
+          \endlinechar\m@ne
+          \openin\@inputcheck=|"kpsewhich -format=#1 newchet-stix2-mathit newchet-stix2-mathit-bold"
+          \ifeof\@inputcheck\else\newchet@countlines\fi
+          \closein\@inputcheck
+        \endgroup}
+      \newchet@kpsewhich{tfm}%
+      \newchet@kpsewhich{vf}%
+      \ifnum\newchet@found<4
+        \def\newchet@found{0}
+        \@for\newchet@tempa:=\newchet@subfonts\do{%
+          \IfFileExists{./\newchet@tempa}{\xdef\newchet@found{\the\numexpr\newchet@found+1}}{}}%
+      \fi
+      \ifnum\newchet@found=4
+        \input{ls1stix2.fd}%
+        \DeclareFontShape{LS1}{stix2}{m}{it}{<-> newchet-stix2-mathit}{}%
+        \DeclareFontShape{LS1}{stix2}{b}{it}{<-> newchet-stix2-mathit-bold}{}%
+      \else
+        \PackageWarningNoLine{newchet}{the virtual fonts newchet-stix2-mathit(-bold)%
+          \MessageBreak were not found, so subscripts keep the placement of%
+          \MessageBreak the stix2 package.  Install the fonts, or use the%
+          \MessageBreak option nosubscriptkerns.  If kpsewhich cannot run,%
+          \MessageBreak newchet only looks in the document folder}%
+      \fi
+    \fi
   \fi
 \fi
 % newtxgreek: the math Greek of newtxmath over STIX Two or Computer Modern.  Lowercase

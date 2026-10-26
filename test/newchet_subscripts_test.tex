@@ -1,0 +1,97 @@
+% newchet_subscripts_test.tex
+% Test file for the subscript placement of newchet.sty with the stix2 option.  Each pair of
+% lines sets the same formulas, first in the math italic of the stix2 package and then in
+% newchet's virtual font.  Only the subscripts should move.  Superscripts, primes, accents
+% and letters side by side keep their places.  The first paragraph names the math italic
+% in use, which is newchet-stix2-mathit when newchet finds its virtual fonts.
+% Compile with: make newchet-subscripts-test
+% or, from this folder: TEXINPUTS=../newchet: TFMFONTS=../newchet: VFFONTS=../newchet: latexmk -pdf newchet_subscripts_test
+% Without the three variables, it tests the installed newchet.sty and fonts.
+
+\documentclass[11pt]{article}
+\usepackage[stix2,nobib,notitlepage,notoc]{newchet}
+
+% The math italic of the stix2 package, under a family name of its own
+\DeclareFontFamily{LS1}{stix2orig}{\skewchar\font127 }
+\DeclareFontShape{LS1}{stix2orig}{m}{it}{<-> stix2-mathit}{}
+\DeclareFontShape{LS1}{stix2orig}{b}{it}{<-> stix2-mathit-bold}{}
+\DeclareMathAlphabet{\stixit}{LS1}{stix2orig}{m}{it}
+\SetMathAlphabet{\stixit}{bold}{LS1}{stix2orig}{b}{it}
+
+% The formulas, for a letter #1
+\newcommand*{\patsub}[1]{#1_A}
+\newcommand*{\patsup}[1]{#1^A}
+\newcommand*{\patboth}[1]{#1_i^2}
+\newcommand*{\patprime}[1]{#1'}
+\newcommand*{\pathat}[1]{\hat{#1}}
+\newcommand*{\pattwice}[1]{#1#1}
+\makeatletter
+% \pair\pat{letters}: the letters set with \pat, in the stix2 font and then in newchet's
+\newcommand*{\pair}[2]{%
+  \par\noindent\makebox[4.5em][l]{stix2}\@tfor\next:=#2\do{\(#1{\stixit{\next}}\)\quad}%
+  \par\noindent\makebox[4.5em][l]{newchet}\@tfor\next:=#2\do{\(#1{\next}\)\quad}%
+  \par\smallskip}
+% \shifts\pat{letters}: how much narrower each formula is in newchet's font, in thousandths
+% of an em of the math italic, which is the font size
+\newcommand*{\shifts}[2]{%
+  \@tfor\next:=#2\do{%
+    \setbox0\hbox{\(#1{\stixit{\next}}\)}\setbox2\hbox{\(#1{\next}\)}%
+    \next\,\the\numexpr\dimexpr\wd0-\wd2\relax*1000/\dimexpr\f@size\p@\relax\relax\quad}}
+\makeatother
+
+\begin{document}
+\raggedright
+
+\section*{Subscripts with the stix2 option of newchet}
+
+The math italic in use should be \texttt{newchet-stix2-mathit}, or \texttt{stix2-mathit} with the option \texttt{nosubscriptkerns}.  It is
+
+\noindent\(\hbox{\ttfamily\fontname\textfont1}\) in normal math,
+
+\noindent{\boldmath\(\hbox{\ttfamily\fontname\textfont1}\)} in bold math.
+
+\subsection*{Subscripts}
+
+\pair\patsub{ABCDEFGHIJKLM}
+\pair\patsub{NOPQRSTUVWXYZ}
+\pair\patsub{abcdefghijklm}
+\pair\patsub{nopqrstuvwxyz}
+
+\subsection*{Bold subscripts}
+
+{\boldmath
+\pair\patsub{ABCDEFGHIJKLM}
+\pair\patsub{NOPQRSTUVWXYZ}
+\pair\patsub{abcdefghijklm}
+\pair\patsub{nopqrstuvwxyz}
+}
+
+\subsection*{Superscripts, both scripts, primes, accents and pairs}
+
+The superscripts, primes, accents and pairs should not move.  With both scripts, only the subscript should move.
+
+\pair\patsup{FPTVWYfj}
+\pair\patboth{FPTVWYfj}
+\pair\patprime{FPTVWYfj}
+\pair\pathat{FPTVWYfj}
+\pair\pattwice{FPTVWYfj}
+
+\subsection*{Shifts}
+
+How much each subscript moves to the left, in thousandths of an em.  The letters that do not move show 0.
+
+\noindent\shifts\patsub{ABCDEFGHIJKLMNOPQRSTUVWXYZ}
+
+\noindent\shifts\patsub{abcdefghijklmnopqrstuvwxyz}
+
+\noindent In bold: {\boldmath\shifts\patsub{ABCDEFGHIJKLMNOPQRSTUVWXYZ}}
+
+\noindent In bold: {\boldmath\shifts\patsub{abcdefghijklmnopqrstuvwxyz}}
+
+The same for superscripts, primes and pairs, which should all show 0.
+
+\noindent\shifts\patsup{ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz}
+
+\noindent\shifts\patprime{FPTVWYfj}\quad\shifts\pattwice{FPTVWYfj}
+
+\end{document}
