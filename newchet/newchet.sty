@@ -82,7 +82,7 @@
     \PassOptionsToPackage{\CurrentOption}{biblatex}%
   \fi}
 \def\newchet@setsize#1=\@nil{\edef\newchet@size{\number\dimexpr#1\relax}}
-\ProcessOptions\relax
+\ProcessOptions*\relax
 
 % tocloft cannot patch the table of contents of the AMS classes, and memoir has
 % tocloft's features built in and refuses to load it, so drop that part
