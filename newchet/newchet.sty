@@ -611,13 +611,31 @@
 % \centering in the title, so with titlesec the heading gets a centred format of its own.
 % The space below it is cut, as chet.sty does with \vspace{-0.4cm}, so the first entry sits
 % about 18.5pt below the heading's baseline at 12pt, as in chet.sty.
+%
+% The heading is listed in the table of contents without a number, also as in chet.sty.
+% titlesec's \section* sets no hyperref anchor, so \phantomsection gives the entry one.
+% Both go in the code before the title, inside the heading line, where hyperref raises the
+% anchor to the heading as it does for numbered sections.  After the heading, the link
+% would land below it.  The AMS classes list starred sections themselves, with the title as
+% given, and already centre them at the body size.  There the title is passed alone, which
+% keeps \centering out of the table of contents.
+\newif\ifnewchet@ams
+\@for\newchet@cls:=amsart,amsbook,amsproc\do{%
+  \@ifclassloaded{\newchet@cls}{\newchet@amstrue}{}}
 \defbibheading{bibliography}[\refname]{%
   \ifnewchet@titlesec
-    {\titleformat{name=\section,numberless}[block]{\normalfont\normalsize\bfseries\filcenter}{}{0pt}{}%
+    {\titleformat{name=\section,numberless}[block]{\normalfont\normalsize\bfseries\filcenter}{}{0pt}%
+       {\csname phantomsection\endcsname\addcontentsline{toc}{section}{#1}}%
      \titlespacing*{\section}{0pt}{3.5ex plus 1ex minus .2ex}{0.8ex plus .2ex}%
      \section*{#1}}%
   \else
-    \section*{\centering\normalsize #1}\vspace{-7pt}%
+    \ifnewchet@ams
+      \section*{#1}%
+    \else
+      \section*{\centering\normalsize #1}%
+      \addcontentsline{toc}{section}{#1}%
+    \fi
+    \vspace{-7pt}%
   \fi
   \markboth{\MakeUppercase{#1}}{\MakeUppercase{#1}}}
 
