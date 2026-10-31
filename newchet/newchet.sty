@@ -426,6 +426,11 @@
   % A number too long for its box (10. or 3.10.) would run into the title, so widen
   % the box for that entry to the number plus the same 0.5em gap as in the headings.
   % tocloft calls this hook with the number just before it sets the box to \@tempdima.
+  % tocloft before v3.0 (August 2026) has no such hook, so add it to \numberline.
+  \@ifundefined{@cftinitnumwidth}{%
+    \newcommand{\@cftinitnumwidth}[1]{}%
+    \let\newchet@numberline\numberline
+    \renewcommand{\numberline}[1]{\@cftinitnumwidth{#1}\newchet@numberline{#1}}}{}
   \renewcommand{\@cftinitnumwidth}[1]{%
     \settowidth{\@tempdimb}{\@cftbsnum #1\@cftasnum\hspace{0.5em}}%
     \ifdim\@tempdimb>\@tempdima \@tempdima\@tempdimb \fi}

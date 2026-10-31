@@ -11,6 +11,7 @@ All notable changes to the chet package are recorded here.
 - `acknowledgements` environment and `\ack`, with British spelling by default
 - The References heading is centred and set at the body size like the Acknowledgements heading, as in `chet.sty`, with or without titlesec, and the space below it is cut to match `chet.sty`
 - Appendices are headed "Appendix A." in the heading and the table of contents, as in `chet.sty`
+- In the table of contents, a number too long for its box, such as 10. or 3.10., gets a wider box. This also works with tocloft before v3.0, which lacks the hook newchet uses for it, as on Overleaf
 - Theorem notes are bold in the `plain` and `definition` styles, matching the head
 - The title is 1.894 times the body size, the ratio `\huge` has at 11pt, instead of `\huge`, which jumps to 24.88pt at 12pt; with Computer Modern, fix-cm supplies the in-between sizes, also for math in the title
 - Options `newtx` and `stix2` set text and math in newtx (Times) or STIX Two instead of Computer Modern; the title and `\titlemath` use the same text font, and the last of the two options given wins
