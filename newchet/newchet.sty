@@ -651,8 +651,11 @@
 \DefineBibliographyStrings{british}{mathesis={Master's thesis}}
 \DefineBibliographyStrings{american}{mathesis={Master's thesis}}
 
-\providecommand*{\arxivref}[2]{\href{https://arxiv.org/abs/#1}{#2}}
-\providecommand*{\doiref}[2]{\href{https://doi.org/#1}{#2}}
+% Without hyperref, as with nohyperref, the text is printed without a link
+\providecommand*{\arxivref}[2]{%
+  \@ifundefined{href}{#2}{\href{https://arxiv.org/abs/#1}{#2}}}
+\providecommand*{\doiref}[2]{%
+  \@ifundefined{href}{#2}{\href{https://doi.org/#1}{#2}}}
 
 % Punctuation: every unit is separated by a comma, and entries end with a period
 \renewcommand*{\newunitpunct}{\addcomma\space}

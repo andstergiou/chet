@@ -26,7 +26,7 @@ All notable changes to the chet package are recorded here.
 - `newchet/newchet-subscripts.py` makes the fonts, and `make newchet-fonts` runs it. `make install-newchet` copies the fonts and `newchet.sty` into the personal TeX tree. `test/newchet_subscripts_test.tex` sets every letter both ways, and `make newchet-subscripts-test` builds it
 - Of `newtx` and `stix2`, the last one given now wins, as documented. `\ProcessOptions*` takes the options in the order given. Before, `stix2` always won
 - Option `fontsize=<size>` sets any body size with `article`, `report` or `book`, by scaling the sizes and spacings of the 11pt class option
-- Options `nobib`, `nogeometry`, `nohyperref`, `notoc`, `notitlesec`, `notitlepage` and `notheorems`; incompatible parts are switched off automatically for the AMS, revtex, memoir and KOMA classes
+- Options `nobib`, `nogeometry`, `nohyperref`, `notoc`, `notitlesec`, `notitlepage` and `notheorems`; incompatible parts are switched off automatically for the AMS, revtex, memoir and KOMA classes. With `nohyperref`, the DOI and arXiv references are printed without links, unless the document loads hyperref itself
 
 ## [2.3b] — 2026-07-11
 

@@ -146,7 +146,7 @@ For grouped citations, load `\usepackage[mcite]{newchet}` and use biblatex's syn
 | --- | --- |
 | `nobib` | Do not load biblatex (for revtex, `.bst` files or no bibliography) |
 | `nogeometry` | Do not load geometry (the class or another package sets the margins) |
-| `nohyperref` | Do not load hyperref |
+| `nohyperref` | Do not load hyperref. The bibliography then has no links, unless the document loads hyperref itself |
 | `notoc` | Do not load tocloft or reformat the table of contents |
 | `notitlesec` | Do not load titlesec or reformat the section headings |
 | `notitlepage` | Keep the class's own `\maketitle` and abstract environment |
