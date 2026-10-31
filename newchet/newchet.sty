@@ -148,6 +148,16 @@
     \RequirePackage{newtxmath}
   \else
     \RequirePackage{stix2}
+    % STIX Two has no bold for its large delimiters and its calligraphic, blackboard bold
+    % and typewriter math.  The stix2 .fd files substitute the medium weight with a warning.
+    % LaTeX loads every symbol font of the math version on entering math, used or not.  So
+    % each bold heading with math gave 15 warnings, for five symbol fonts at three sizes.
+    % Take the medium weight in the bold version directly.  The glyphs are the same.
+    \SetSymbolFont{largesymbols}{bold}{LS2}{stix2ex}{m}{n}
+    \SetSymbolFont{integrals}{bold}{LS2}{stix2cal}{m}{n}
+    \SetSymbolFont{symbols3}{bold}{LS1}{stix2bb}{m}{n}
+    \SetSymbolFont{symbols4}{bold}{LS1}{stix2bb}{m}{it}
+    \SetSymbolFont{arrows3}{bold}{LS2}{stix2tt}{m}{n}
     % STIX Two has no typewriter, and the x-height of cmtt is 9% below that of STIX Two
     % Text.  newtxtt has a bold, and scaled=1.02 matches the x-heights.
     \RequirePackage[scaled=1.02]{newtxtt}
