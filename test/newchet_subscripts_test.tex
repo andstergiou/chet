@@ -1,9 +1,10 @@
 % newchet_subscripts_test.tex
 % Test file for the subscript placement of newchet.sty with the stix2 option.  Each pair of
-% lines sets the same formulas, first in the math italic of the stix2 package and then in
-% newchet's virtual font.  Only the subscripts should move.  Superscripts, primes, accents
-% and letters side by side keep their places.  The first paragraph names the math italic
-% in use, which is newchet-stix2-mathit when newchet finds its virtual fonts.
+% lines sets the same formulas, first in the math italic or calligraphic font of the stix2
+% package and then in newchet's virtual font.  Only the subscripts should move.
+% Superscripts, primes, accents and letters side by side keep their places.  The first
+% paragraph names the fonts in use, which are newchet-stix2-mathit and newchet-stix2-mathcal
+% when newchet finds its virtual fonts.
 % Compile with: make newchet-subscripts-test
 % or, from this folder: TEXINPUTS=../newchet: TFMFONTS=../newchet: VFFONTS=../newchet: latexmk -pdf newchet_subscripts_test
 % Without the three variables, it tests the installed newchet.sty and fonts.
@@ -17,6 +18,10 @@
 \DeclareFontShape{LS1}{stix2orig}{b}{it}{<-> stix2-mathit-bold}{}
 \DeclareMathAlphabet{\stixit}{LS1}{stix2orig}{m}{it}
 \SetMathAlphabet{\stixit}{bold}{LS1}{stix2orig}{b}{it}
+% The calligraphic capitals of the stix2 package, which have no bold
+\DeclareFontFamily{LS2}{stix2calorig}{\skewchar\font127 }
+\DeclareFontShape{LS2}{stix2calorig}{m}{n}{<-> stix2-mathcal}{}
+\DeclareMathAlphabet{\stixcal}{LS2}{stix2calorig}{m}{n}
 
 % The formulas, for a letter #1
 \newcommand*{\patsub}[1]{#1_A}
@@ -25,17 +30,24 @@
 \newcommand*{\patprime}[1]{#1'}
 \newcommand*{\pathat}[1]{\hat{#1}}
 \newcommand*{\pattwice}[1]{#1#1}
+\newcommand*{\patcal}[1]{#1_{\mathcal{O}}}
 \makeatletter
-% \pair\pat{letters}: the letters set with \pat, in the stix2 font and then in newchet's
-\newcommand*{\pair}[2]{%
-  \par\noindent\makebox[4.5em][l]{stix2}\@tfor\next:=#2\do{\(#1{\stixit{\next}}\)\quad}%
-  \par\noindent\makebox[4.5em][l]{newchet}\@tfor\next:=#2\do{\(#1{\next}\)\quad}%
+% \pair\pat{letters}: the italic letters set with \pat, in the stix2 font and then in
+% newchet's.  \calpair does the same for calligraphic capitals.
+\newcommand*{\pair}[2]{\pairwith\stixit\@firstofone{#1}{#2}}
+\newcommand*{\calpair}[2]{\pairwith\stixcal\mathcal{#1}{#2}}
+\newcommand*{\pairwith}[4]{%
+  \par\noindent\makebox[4.5em][l]{stix2}\@tfor\next:=#4\do{\(#3{#1{\next}}\)\quad}%
+  \par\nopagebreak\noindent\makebox[4.5em][l]{newchet}\@tfor\next:=#4\do{\(#3{#2{\next}}\)\quad}%
   \par\smallskip}
 % \shifts\pat{letters}: how much narrower each formula is in newchet's font, in thousandths
-% of an em of the math italic, which is the font size
-\newcommand*{\shifts}[2]{%
-  \@tfor\next:=#2\do{%
-    \setbox0\hbox{\(#1{\stixit{\next}}\)}\setbox2\hbox{\(#1{\next}\)}%
+% of an em of the font, which is the font size.  \calshifts does the same for calligraphic
+% capitals.
+\newcommand*{\shifts}[2]{\shiftswith\stixit\@firstofone{#1}{#2}}
+\newcommand*{\calshifts}[2]{\shiftswith\stixcal\mathcal{#1}{#2}}
+\newcommand*{\shiftswith}[4]{%
+  \@tfor\next:=#4\do{%
+    \setbox0\hbox{\(#3{#1{\next}}\)}\setbox2\hbox{\(#3{#2{\next}}\)}%
     \next\,\the\numexpr\dimexpr\wd0-\wd2\relax*1000/\dimexpr\f@size\p@\relax\relax\quad}}
 \makeatother
 
@@ -49,6 +61,12 @@ The math italic in use should be \texttt{newchet-stix2-mathit}, or \texttt{stix2
 \noindent\(\hbox{\ttfamily\fontname\textfont1}\) in normal math,
 
 \noindent{\boldmath\(\hbox{\ttfamily\fontname\textfont1}\)} in bold math.
+
+The calligraphic font in use should be \texttt{newchet-stix2-mathcal}, or \texttt{stix2-mathcal} with the option \texttt{nosubscriptkerns}, in normal and bold math.  It is
+
+\noindent\(\hbox{\ttfamily\fontname\textfont\symintegrals}\) in normal math,
+
+\noindent{\boldmath\(\hbox{\ttfamily\fontname\textfont\symintegrals}\)} in bold math.
 
 \subsection*{Subscripts}
 
@@ -66,6 +84,13 @@ The math italic in use should be \texttt{newchet-stix2-mathit}, or \texttt{stix2
 \pair\patsub{nopqrstuvwxyz}
 }
 
+\subsection*{Calligraphic subscripts}
+
+\calpair\patsub{ABCDEFGHIJKLM}
+\calpair\patsub{NOPQRSTUVWXYZ}
+\calpair\patcal{FINPTVW}
+{\boldmath\calpair\patsub{FINPTVW}}
+
 \subsection*{Superscripts, both scripts, primes, accents and pairs}
 
 The superscripts, primes, accents and pairs should not move.  With both scripts, only the subscript should move.
@@ -75,6 +100,11 @@ The superscripts, primes, accents and pairs should not move.  With both scripts,
 \pair\patprime{FPTVWYfj}
 \pair\pathat{FPTVWYfj}
 \pair\pattwice{FPTVWYfj}
+\calpair\patsup{FINPTVW}
+\calpair\patboth{FINPTVW}
+\calpair\patprime{FINPTVW}
+\calpair\pathat{FINPTVW}
+\calpair\pattwice{FINPTVW}
 
 \subsection*{Shifts}
 
@@ -88,10 +118,16 @@ How much each subscript moves to the left, in thousandths of an em.  The letters
 
 \noindent In bold: {\boldmath\shifts\patsub{abcdefghijklmnopqrstuvwxyz}}
 
+\noindent Calligraphic: \calshifts\patsub{ABCDEFGHIJKLMNOPQRSTUVWXYZ}
+
 The same for superscripts, primes and pairs, which should all show 0.
 
 \noindent\shifts\patsup{ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz}
 
 \noindent\shifts\patprime{FPTVWYfj}\quad\shifts\pattwice{FPTVWYfj}
+
+\noindent Calligraphic: \calshifts\patsup{ABCDEFGHIJKLMNOPQRSTUVWXYZ}
+
+\noindent\calshifts\patprime{FINPTVW}\quad\calshifts\pattwice{FINPTVW}
 
 \end{document}

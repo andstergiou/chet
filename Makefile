@@ -3,7 +3,7 @@
 # The personal TeX tree: ~/Library/texmf on macOS, ~/texmf on Linux.  Override it with a
 # full path, e.g. make install-newchet TEXMFHOME=/path/to/tree.  zsh passes a ~ there unexpanded.
 TEXMFHOME := $(shell kpsewhich -var-value TEXMFHOME)
-NEWCHET_FONTS := newchet-stix2-mathit newchet-stix2-mathit-bold
+NEWCHET_FONTS := newchet-stix2-mathit newchet-stix2-mathit-bold newchet-stix2-mathcal
 
 all: doc test
 

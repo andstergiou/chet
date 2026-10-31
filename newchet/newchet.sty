@@ -14,11 +14,11 @@
 %
 % Install into the personal tree so that it works from any directory:
 %   ~/Library/texmf/tex/latex/newchet/newchet.sty
-% With stix2, newchet also uses two virtual fonts, which bring subscripts closer to italic
-% letters.  They go into the same tree, or into the document folder:
-%   ~/Library/texmf/fonts/tfm/newchet/newchet-stix2-mathit{,-bold}.tfm
-%   ~/Library/texmf/fonts/vf/newchet/newchet-stix2-mathit{,-bold}.vf
-% make install-newchet in the chet repository installs all five files (into ~/texmf on Linux).
+% With stix2, newchet also uses three virtual fonts, which bring subscripts closer to italic
+% and calligraphic letters.  They go into the same tree, or into the document folder:
+%   ~/Library/texmf/fonts/tfm/newchet/newchet-stix2-{mathit,mathit-bold,mathcal}.tfm
+%   ~/Library/texmf/fonts/vf/newchet/newchet-stix2-{mathit,mathit-bold,mathcal}.vf
+% make install-newchet in the chet repository installs all seven files (into ~/texmf on Linux).
 %
 % Options
 %   nobib        do not load biblatex (use with revtex, bst files, or no bibliography)
@@ -47,7 +47,7 @@
 % The margins can still be changed afterwards with \geometry{margin=3cm}.
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{newchet}[2026/10/26 v1.0 personal article style with chetref-like bibliography]
+\ProvidesPackage{newchet}[2026/10/31 v1.0 personal article style with chetref-like bibliography]
 
 \newif\ifnewchet@bib        \newchet@bibtrue
 \newif\ifnewchet@geometry   \newchet@geometrytrue
@@ -202,17 +202,22 @@
     % the italic correction, so the label of \stackrel{*}{T} and the limits of
     % \mathop{T}\limits move by half as much.  \overset and \underset are not affected.  The
     % amounts come from the math italic of SticksToo (V: 0.11em), which newtxmath uses with
-    % its option stickstoo.  newchet-subscripts.py makes the fonts.
+    % its option stickstoo.  The calligraphic capitals of \mathcal have the same problem: the
+    % width of N, F and T follows their flourish or bar.  In the virtual font
+    % newchet-stix2-mathcal, 8 of them move their subscripts left, by amounts measured from
+    % the outlines (N: 0.146em).  It also serves bold math, since STIX Two has no bold
+    % calligraphic.  newchet-subscripts.py makes the fonts.
     % pdfTeX loads fonts through its font paths, not through TEXINPUTS.  So \IfFileExists
     % alone cannot tell whether they will load.  kpsewhich searches the font paths, and TeX
     % Live's restricted shell escape allows it.  The calls give -format.  Without it,
     % kpsewhich looks up a name ending in .vf on OVFFONTS, the path of Omega's virtual
     % fonts, and not on VFFONTS, which pdfTeX uses and make newchet-subscripts-test sets.
     % If kpsewhich cannot run, only the document folder is checked, since it is on every
-    % font path.  All four files must be found, or the fonts are not used.
+    % font path.  All six files must be found, or the fonts are not used.
     \ifnewchet@subkerns
       \def\newchet@subfonts{newchet-stix2-mathit.tfm,newchet-stix2-mathit.vf,%
-        newchet-stix2-mathit-bold.tfm,newchet-stix2-mathit-bold.vf}
+        newchet-stix2-mathit-bold.tfm,newchet-stix2-mathit-bold.vf,%
+        newchet-stix2-mathcal.tfm,newchet-stix2-mathcal.vf}
       \def\newchet@found{0}
       % One line of output for each file kpsewhich finds; \readline takes the paths verbatim
       \def\newchet@countlines{%
@@ -222,24 +227,27 @@
       \def\newchet@kpsewhich#1{%
         \begingroup
           \endlinechar\m@ne
-          \openin\@inputcheck=|"kpsewhich -format=#1 newchet-stix2-mathit newchet-stix2-mathit-bold"
+          \openin\@inputcheck=|"kpsewhich -format=#1 newchet-stix2-mathit newchet-stix2-mathit-bold newchet-stix2-mathcal"
           \ifeof\@inputcheck\else\newchet@countlines\fi
           \closein\@inputcheck
         \endgroup}
       \newchet@kpsewhich{tfm}%
       \newchet@kpsewhich{vf}%
-      \ifnum\newchet@found<4
+      \ifnum\newchet@found<6
         \def\newchet@found{0}
         \@for\newchet@tempa:=\newchet@subfonts\do{%
           \IfFileExists{./\newchet@tempa}{\xdef\newchet@found{\the\numexpr\newchet@found+1}}{}}%
       \fi
-      \ifnum\newchet@found=4
+      \ifnum\newchet@found=6
         \input{ls1stix2.fd}%
         \DeclareFontShape{LS1}{stix2}{m}{it}{<-> newchet-stix2-mathit}{}%
         \DeclareFontShape{LS1}{stix2}{b}{it}{<-> newchet-stix2-mathit-bold}{}%
+        \input{ls2stix2cal.fd}%
+        \DeclareFontShape{LS2}{stix2cal}{m}{n}{<-> newchet-stix2-mathcal}{}%
       \else
         \PackageWarningNoLine{newchet}{the virtual fonts newchet-stix2-mathit(-bold)%
-          \MessageBreak were not found, so subscripts keep the placement of%
+          \MessageBreak and newchet-stix2-mathcal were not found, so%
+          \MessageBreak subscripts keep the placement of%
           \MessageBreak the stix2 package.  Install the fonts, or use the%
           \MessageBreak option nosubscriptkerns.  If kpsewhich cannot run,%
           \MessageBreak newchet only looks in the document folder}%
