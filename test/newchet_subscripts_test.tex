@@ -1,10 +1,10 @@
 % newchet_subscripts_test.tex
 % Test file for the subscript placement of newchet.sty with the stix2 option.  Each pair of
-% lines sets the same formulas, first in the math italic or calligraphic font of the stix2
-% package and then in newchet's virtual font.  Only the subscripts should move.
+% lines sets the same formulas, first in the math italic, upright or calligraphic font of the
+% stix2 package and then in newchet's virtual font.  Only the subscripts should move.
 % Superscripts, primes, accents and letters side by side keep their places.  The first
-% paragraph names the fonts in use, which are newchet-stix2-mathit and newchet-stix2-mathcal
-% when newchet finds its virtual fonts.
+% paragraph names the fonts in use, which are newchet-stix2-mathit, newchet-stix2-mathrm and
+% newchet-stix2-mathcal when newchet finds its virtual fonts.
 % Compile with: make newchet-subscripts-test
 % or, from this folder: TEXINPUTS=../newchet: TFMFONTS=../newchet: VFFONTS=../newchet: latexmk -pdf newchet_subscripts_test
 % Without the three variables, it tests the installed newchet.sty and fonts.
@@ -18,6 +18,25 @@
 \DeclareFontShape{LS1}{stix2orig}{b}{it}{<-> stix2-mathit-bold}{}
 \DeclareMathAlphabet{\stixit}{LS1}{stix2orig}{m}{it}
 \SetMathAlphabet{\stixit}{bold}{LS1}{stix2orig}{b}{it}
+% The upright font of the stix2 package, with the Greek capitals and \nabla
+\DeclareFontShape{LS1}{stix2orig}{m}{n}{<-> stix2-mathrm}{}
+\DeclareFontShape{LS1}{stix2orig}{b}{n}{<-> stix2-mathrm-bold}{}
+\DeclareMathAlphabet{\stixrm}{LS1}{stix2orig}{m}{n}
+\SetMathAlphabet{\stixrm}{bold}{LS1}{stix2orig}{b}{n}
+% Lowercase Greek, \partial and \nabla are \mathord in stix2, so \stixit and \stixrm would
+% not change their font.  As characters of variable family they follow the alphabet.
+\newcommand*{\varchar}[2]{\mathchar\numexpr"7000+#1*"100+#2\relax}
+\newcommand*{\Xgamma}{\varchar\symletters{"0D}}
+\newcommand*{\Xdelta}{\varchar\symletters{"0E}}
+\newcommand*{\Xzeta}{\varchar\symletters{"10}}
+\newcommand*{\Xtheta}{\varchar\symletters{"12}}
+\newcommand*{\Xnu}{\varchar\symletters{"17}}
+\newcommand*{\Xpi}{\varchar\symletters{"19}}
+\newcommand*{\Xsigma}{\varchar\symletters{"1B}}
+\newcommand*{\Xtau}{\varchar\symletters{"1C}}
+\newcommand*{\Xvarpi}{\varchar\symletters{"24}}
+\newcommand*{\Xpartial}{\varchar\symletters{"29}}
+\newcommand*{\Xnabla}{\varchar\symoperators{"28}}
 % The calligraphic capitals of the stix2 package, which have no bold
 \DeclareFontFamily{LS2}{stix2calorig}{\skewchar\font127 }
 \DeclareFontShape{LS2}{stix2calorig}{m}{n}{<-> stix2-mathcal}{}
@@ -36,6 +55,7 @@
 % newchet's.  \calpair does the same for calligraphic capitals.
 \newcommand*{\pair}[2]{\pairwith\stixit\@firstofone{#1}{#2}}
 \newcommand*{\calpair}[2]{\pairwith\stixcal\mathcal{#1}{#2}}
+\newcommand*{\rmpair}[2]{\pairwith\stixrm\mathrm{#1}{#2}}
 \newcommand*{\pairwith}[4]{%
   \par\noindent\makebox[4.5em][l]{stix2}\@tfor\next:=#4\do{\(#3{#1{\next}}\)\quad}%
   \par\nopagebreak\noindent\makebox[4.5em][l]{newchet}\@tfor\next:=#4\do{\(#3{#2{\next}}\)\quad}%
@@ -45,10 +65,11 @@
 % capitals.
 \newcommand*{\shifts}[2]{\shiftswith\stixit\@firstofone{#1}{#2}}
 \newcommand*{\calshifts}[2]{\shiftswith\stixcal\mathcal{#1}{#2}}
+\newcommand*{\rmshifts}[2]{\shiftswith\stixrm\mathrm{#1}{#2}}
 \newcommand*{\shiftswith}[4]{%
   \@tfor\next:=#4\do{%
     \setbox0\hbox{\(#3{#1{\next}}\)}\setbox2\hbox{\(#3{#2{\next}}\)}%
-    \next\,\the\numexpr\dimexpr\wd0-\wd2\relax*1000/\dimexpr\f@size\p@\relax\relax\quad}}
+    \ifcat a\next\next\else\(\next\)\fi\,\the\numexpr\dimexpr\wd0-\wd2\relax*1000/\dimexpr\f@size\p@\relax\relax\quad}}
 \makeatother
 
 \begin{document}
@@ -61,6 +82,12 @@ The math italic in use should be \texttt{newchet-stix2-mathit}, or \texttt{stix2
 \noindent\(\hbox{\ttfamily\fontname\textfont1}\) in normal math,
 
 \noindent{\boldmath\(\hbox{\ttfamily\fontname\textfont1}\)} in bold math.
+
+The upright font in use should be \texttt{newchet-stix2-mathrm}, or \texttt{stix2-mathrm} with the option \texttt{nosubscriptkerns}.  It is
+
+\noindent\(\hbox{\ttfamily\fontname\textfont\symoperators}\) in normal math,
+
+\noindent{\boldmath\(\hbox{\ttfamily\fontname\textfont\symoperators}\)} in bold math.
 
 The calligraphic font in use should be \texttt{newchet-stix2-mathcal}, or \texttt{stix2-mathcal} with the option \texttt{nosubscriptkerns}, in normal and bold math.  It is
 
@@ -84,12 +111,21 @@ The calligraphic font in use should be \texttt{newchet-stix2-mathcal}, or \textt
 \pair\patsub{nopqrstuvwxyz}
 }
 
+\subsection*{Greek, upright and \texorpdfstring{\(\nabla\)}{nabla} subscripts}
+
+\pair\patsub{\Xgamma\Xdelta\Xzeta\Xtheta\Xnu\Xpi\Xsigma\Xtau\Xvarpi\Xpartial}
+\rmpair\patsub{\Gamma\Upsilon\Psi\Xnabla PTVWYvwy}
+{\boldmath
+\pair\patsub{\Xgamma\Xdelta\Xzeta\Xtheta\Xnu\Xpi\Xsigma\Xtau\Xvarpi\Xpartial}
+\rmpair\patsub{\Gamma\Upsilon\Psi\Xnabla PTVWYvwy}
+}
+
 \subsection*{Calligraphic subscripts}
 
 \calpair\patsub{ABCDEFGHIJKLM}
 \calpair\patsub{NOPQRSTUVWXYZ}
-\calpair\patcal{FINPTVW}
-{\boldmath\calpair\patsub{FINPTVW}}
+\calpair\patcal{FILNPTVW}
+{\boldmath\calpair\patsub{FILNPTVW}}
 
 \subsection*{Superscripts, both scripts, primes, accents and pairs}
 
@@ -100,11 +136,18 @@ The superscripts, primes, accents and pairs should not move.  With both scripts,
 \pair\patprime{FPTVWYfj}
 \pair\pathat{FPTVWYfj}
 \pair\pattwice{FPTVWYfj}
-\calpair\patsup{FINPTVW}
-\calpair\patboth{FINPTVW}
-\calpair\patprime{FINPTVW}
-\calpair\pathat{FINPTVW}
-\calpair\pattwice{FINPTVW}
+\calpair\patsup{FILNPTVW}
+\calpair\patboth{FILNPTVW}
+\calpair\patprime{FILNPTVW}
+\calpair\pathat{FILNPTVW}
+\calpair\pattwice{FILNPTVW}
+\pair\patsup{\Xgamma\Xsigma\Xtau\Xpartial}
+\pair\patboth{\Xgamma\Xsigma\Xtau\Xpartial}
+\pair\pathat{\Xgamma\Xsigma\Xtau\Xpartial}
+\rmpair\patsup{\Gamma\Psi\Xnabla TVW}
+\rmpair\patboth{\Gamma\Psi\Xnabla TVW}
+\rmpair\pathat{\Gamma\Psi\Xnabla TVW}
+\rmpair\pattwice{\Gamma\Psi\Xnabla TVW}
 
 \subsection*{Shifts}
 
@@ -120,6 +163,12 @@ How much each subscript moves to the left, in thousandths of an em.  The letters
 
 \noindent Calligraphic: \calshifts\patsub{ABCDEFGHIJKLMNOPQRSTUVWXYZ}
 
+\noindent Greek and \(\partial\): \shifts\patsub{\Xgamma\Xdelta\Xzeta\Xtheta\Xnu\Xpi\Xsigma\Xtau\Xvarpi\Xpartial}
+
+\noindent Upright: \rmshifts\patsub{\Gamma\Upsilon\Psi\Xnabla ABCDEFGHIJKLMNOPQRSTUVWXYZ}
+
+\noindent Upright: \rmshifts\patsub{abcdefghijklmnopqrstuvwxyz}
+
 The same for superscripts, primes and pairs, which should all show 0.
 
 \noindent\shifts\patsup{ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz}
@@ -128,6 +177,8 @@ The same for superscripts, primes and pairs, which should all show 0.
 
 \noindent Calligraphic: \calshifts\patsup{ABCDEFGHIJKLMNOPQRSTUVWXYZ}
 
-\noindent\calshifts\patprime{FINPTVW}\quad\calshifts\pattwice{FINPTVW}
+\noindent\calshifts\patprime{FILNPTVW}\quad\calshifts\pattwice{FILNPTVW}
+
+\noindent\shifts\patsup{\Xgamma\Xsigma\Xtau\Xpartial}\quad\rmshifts\patsup{\Gamma\Psi\Xnabla TVW}\quad\rmshifts\pattwice{\Gamma\Psi\Xnabla TVW}
 
 \end{document}

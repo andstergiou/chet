@@ -2,7 +2,7 @@
 
 All notable changes to the chet package are recorded here.
 
-## [newchet 1.0] — 2026-10-31
+## [newchet 1.0] — 2026-11-10
 
 - Added `newchet/newchet.sty`, a new version of chet built on current packages: biblatex replaces `chetref.bst` with a chetref-like style, titlesec sets the headings, and hyperref, geometry, tocloft and microtype are configured
 - The bibliography reproduces every case of `test/chetref_test.tex`: collaborations, et al. without a comma, `arXiv:` prefixes, editions, Master's theses, grouped citations via `\mcite` and JHEP DOI inference; JHEP DOIs are inferred for all years (IOP up to 2008, Springer from 2009), not only those starting 199 or 201
@@ -22,10 +22,10 @@ All notable changes to the chet package are recorded here.
 - With `stix2`, `\mathbb` is the blackboard bold of DSSerif scaled by 1.025, which has a bold weight, through `\usepackage[bb=dsserif,bbscaled=1.025]{mathalpha}` at the end of the preamble, unless the document loads mathalpha itself
 - Script sizes that LaTeX calculates, for sizes it does not declare, such as `\tiny` with `fontsize=`, are at least 5pt, as its declared ones are, but never larger than the text
 - Option `newtxgreek` takes the math Greek letters from newtxmath, for example on top of STIX Two
-- With `stix2`, subscripts sit closer to italic letters, as in SticksToo. The virtual fonts `newchet-stix2-mathit` and `newchet-stix2-mathit-bold` draw the glyphs of the stix2 package and move only the subscripts. The subscript of T moves most, by 0.18em. Superscripts, primes and accents keep their places. Limits on these letters, such as the label of `\stackrel{*}{T}`, move by half as much
-- With `stix2`, subscripts also sit closer to the calligraphic capitals of `\mathcal`, such as N in $\mathcal{N}_{\mathcal{O}}$. The virtual font `newchet-stix2-mathcal` moves the subscripts of F, I, J, N, P, T, V and W, by amounts measured from the outlines, since SticksToo has no calligraphic font. N moves by 0.146em and T most, by 0.261em. The font also serves bold math, since STIX Two has no bold calligraphic
-- newchet uses these fonts when kpsewhich finds all six files, or when all six are in the document folder. Otherwise it keeps the subscript placement of the stix2 package and warns. The option `nosubscriptkerns` keeps that placement without a warning
-- `newchet/newchet-subscripts.py` makes the fonts, and `make newchet-fonts` runs it. `make install-newchet` copies the fonts and `newchet.sty` into the personal TeX tree. `test/newchet_subscripts_test.tex` sets every letter both ways, and `make newchet-subscripts-test` builds it
+- With `stix2`, subscripts sit closer to letters whose width includes their overhang, such as italic V, W, T and f, Greek γ, σ and τ, upright Γ and ∇, and calligraphic F, N and T. The virtual fonts `newchet-stix2-mathit`, `newchet-stix2-mathrm`, their bold versions and `newchet-stix2-mathcal` draw the glyphs of the stix2 package and move only the subscripts. Superscripts, primes and accents keep their places. Limits on these letters, such as the label of `\stackrel{*}{T}`, move by half as much. The calligraphic font also serves bold math, since STIX Two has no bold calligraphic
+- The amounts were measured from the ink of each letter with 180 subscripts. They bring the subscripts a, n and i to the median gap of the italic lowercase letters, unless another subscript would then come closer to the letter than to any italic capital of stix2. The subscript of italic V moves by 0.247em, that of ∇ by 0.206em, and that of calligraphic T most, by 0.285em
+- newchet uses these fonts when kpsewhich finds all ten files, or when all ten are in the document folder. Otherwise it keeps the subscript placement of the stix2 package and warns. The option `nosubscriptkerns` keeps that placement without a warning
+- `newchet/newchet-subscripts.py` makes the fonts, and `make newchet-fonts` runs it. `newchet/newchet-subscripts-measure.py` measures the amounts. `make install-newchet` copies the fonts and `newchet.sty` into the personal TeX tree. `test/newchet_subscripts_test.tex` sets the letters both ways, and `make newchet-subscripts-test` builds it
 - Of `newtx` and `stix2`, the last one given now wins, as documented. `\ProcessOptions*` takes the options in the order given. Before, `stix2` always won
 - Option `fontsize=<size>` sets any body size with `article`, `report` or `book`, by scaling the sizes and spacings of the 11pt class option
 - Options `nobib`, `nogeometry`, `nohyperref`, `notoc`, `notitlesec`, `notitlepage` and `notheorems`; incompatible parts are switched off automatically for the AMS, revtex, memoir and KOMA classes. With `nohyperref`, the DOI and arXiv references are printed without links, unless the document loads hyperref itself

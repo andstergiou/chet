@@ -3,7 +3,7 @@
 # The personal TeX tree: ~/Library/texmf on macOS, ~/texmf on Linux.  Override it with a
 # full path, e.g. make install-newchet TEXMFHOME=/path/to/tree.  zsh passes a ~ there unexpanded.
 TEXMFHOME := $(shell kpsewhich -var-value TEXMFHOME)
-NEWCHET_FONTS := newchet-stix2-mathit newchet-stix2-mathit-bold newchet-stix2-mathcal
+NEWCHET_FONTS := newchet-stix2-mathit newchet-stix2-mathit-bold newchet-stix2-mathrm newchet-stix2-mathrm-bold newchet-stix2-mathcal
 
 all: doc test
 
@@ -21,7 +21,8 @@ newchet-test:
 newchet-subscripts-test:
 	cd test && TEXINPUTS=../newchet: TFMFONTS=../newchet: VFFONTS=../newchet: latexmk -pdf -interaction=nonstopmode newchet_subscripts_test.tex
 
-# Remake the virtual fonts of the stix2 option from the metrics of stix2 and SticksToo
+# Remake the virtual fonts of the stix2 option from the metrics of stix2 and the shifts in newchet-subscripts.py.
+# python3 newchet/newchet-subscripts-measure.py measures the shifts again.
 newchet-fonts:
 	cd newchet && python3 newchet-subscripts.py
 

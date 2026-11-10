@@ -1,49 +1,57 @@
-r"""Make newchet-stix2-mathit{,-bold}.{tfm,vf} and newchet-stix2-mathcal.{tfm,vf}: the math italic and calligraphic
-capitals of the stix2 package with subscripts closer to the letter.
+r"""Make the virtual fonts newchet-stix2-{mathit,mathit-bold,mathrm,mathrm-bold,mathcal}.{tfm,vf}: the math italic, upright
+and calligraphic fonts of the stix2 package with subscripts closer to the letter.
 
 TeX attaches a subscript at the width of a letter.  It attaches a superscript at the width plus the italic correction.  In
-the Type 1 metrics of the stix2 package, the width of most italic capitals includes nearly all of their overhang.  For V,
+the Type 1 metrics of the stix2 package, the width of many letters includes nearly all of their overhang.  For italic V,
 the width is 0.696 em and the italic correction 0.045 em.  Subscripts then sit beyond the top-right corner of V, W, Y, T,
-F, P and similar letters, far from their foot.
+F and P, beyond the arm of gamma, beyond the top of nabla and Gamma, and beyond the tail of calligraphic L.
 
 The virtual fonts written here draw the same STIX Two glyphs at the same places.  They change only where subscripts
-attach.  A letter with a positive shift d gets a width smaller by d and an italic correction larger by d.  Width plus
-italic correction stays the same.  So letters without a subscript, superscripts, primes and accents keep their places, to
-within 2 sp of rounding.  Limits are the exception.  TeX offsets them by half the italic correction, so the label of
+attach.  A letter with a shift d gets a width smaller by d and an italic correction larger by d.  Width plus italic
+correction stays the same.  So letters without a subscript, superscripts, primes and accents keep their places, to within
+2 sp of rounding.  Limits are the exception.  TeX offsets them by half the italic correction, so the label of
 \stackrel{*}{T} and the limits of \mathop{T}\limits move by d/2.
 
-For the math italic, d comes from the math italic of SticksToo (ntxstx2mi and ntxstx2bmi), Michael Sharpe's reworking of
-STIX Two.  It has the same outlines, with metrics tuned for TeX's subscript placement.  d is measured from the glyph
-outline, since the side bearings of a few letters differ between the two fonts.  Only positive d is used, so no subscript
-moves away from its letter.  Regular a and g keep the metrics of stix2 (SKIP below).  The stix2 package sets subscripts
-0.06 em lower than SticksToo, so with the d of SticksToo they would almost touch the tail of a.  The g of SticksToo has a
-different outline, so the comparison does not apply to it.
+The shifts below come from newchet-subscripts-measure.py, which sets every letter with 180 subscripts and measures the
+ink.  The measure is the smallest horizontal distance between the ink of a letter and that of a subscript.  d brings the
+subscripts a, n and i to the median distance of the italic lowercase letters, 0.127 em in regular and 0.116 em in bold.
+d is smaller where one of the 180 subscripts would then come closer to the letter than it comes to any italic capital of
+stix2.  That limit sets d for V and W and for gamma and nabla, by the ascender of b, k and l.  d below 0.005 em is left
+out.  The calligraphic font has no bold, so newchet uses it in bold math too.
 
-The calligraphic capitals (stix2-mathcal, for \mathcal) have the same problem.  Their width follows the top of the letter,
-and the flourish of N and the bars of F and T reach far to the right.  SticksToo has no calligraphic font, so d was
-measured from the outlines (CAL_SHIFT below).  The measure is the smallest horizontal distance between the ink of a letter
-and that of a subscript, at the size and depth at which the stix2 package sets it.  d brings the subscripts a, n and i
-to the median distance over the 26 capitals.  d is smaller where one of 179 subscripts would then come closer to the
-letter than it comes to any capital of stix2.  The subscripts are the italic and upright Latin letters, the Greek letters,
-the digits and the calligraphic capitals.  That limit sets d for F (by xi), P, V and W (by b).  d below 0.005 em is left
-out.  The font has no bold, so newchet uses it in bold math too.
-
-Usage: python3 newchet-subscripts.py, or make newchet-fonts in the chet repository.  It writes the six files into the
-folder of this script.  It needs Python 3.7 or later, kpsewhich, tftopl, vptovf and t1disasm.  It also needs the TeX Live
-packages stix2-type1 and stickstoo.  newchet.sty uses the fonts with its stix2 option when it finds them.
+Usage: python3 newchet-subscripts.py, or make newchet-fonts in the chet repository.  It writes the ten files into the
+folder of this script.  It needs Python 3.7 or later, kpsewhich, tftopl and vptovf, and the TeX Live package stix2-type1.
+newchet.sty uses the fonts with its stix2 option when it finds them.
 """
 import os, re, subprocess, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FONTS = [  # (stix2 tfm, reference tfm, stix2 pfb, reference pfb, first glyph of A-Z, first of a-z, output name)
-    ('stix2-mathit', 'ntxstx2mi', 'STIX2Math.pfb', 'stickstooMath-Italic.pfb', 0x1D434, 0x1D44E, 'newchet-stix2-mathit'),
-    ('stix2-mathit-bold', 'ntxstx2bmi', 'STIX2Math.pfb', 'stickstooMath-BoldItalic.pfb', 0x1D468, 0x1D482,
-     'newchet-stix2-mathit-bold'),
+
+# Subscript shifts in em, from newchet-subscripts-measure.py
+# regular: target gap 0.127 em
+ITALIC = {'C': 0.035, 'E': 0.011, 'F': 0.111, 'H': 0.055, 'I': 0.059, 'J': 0.107, 'M': 0.052, 'N': 0.106, 'O': 0.021, 'P': 0.147, 'S': 0.012, 'T': 0.201, 'U': 0.112, 'V': 0.247, 'W': 0.228, 'X': 0.049, 'Y': 0.234, 'Z': 0.013, 'f': 0.213, 'j': 0.049, 'r': 0.142, 't': 0.030, 'y': 0.021, 'beta': 0.005, 'gamma': 0.089, 'delta': 0.016, 'epsilon': 0.010, 'zeta': 0.057, 'theta': 0.022, 'nu': 0.013, 'xi': 0.018, 'pi': 0.052, 'sigma': 0.079, 'tau': 0.080, 'chi': 0.017, 'vartheta': 0.032, 'varpi': 0.078, 'varsigma': 0.026, 'partial': 0.021}
+UPRIGHT = {'D': 0.010, 'F': 0.055, 'G': 0.014, 'J': 0.051, 'N': 0.041, 'O': 0.011, 'P': 0.131, 'T': 0.100, 'U': 0.058, 'V': 0.171, 'W': 0.149, 'Y': 0.115, 'r': 0.046, 'v': 0.070, 'w': 0.070, 'y': 0.071, 'Gamma': 0.183, 'Theta': 0.009, 'Upsilon': 0.115, 'Phi': 0.013, 'Psi': 0.083, 'nabla': 0.206}
+CALLIGRAPHIC = {'B': 0.018, 'C': 0.041, 'D': 0.023, 'E': 0.030, 'F': 0.198, 'G': 0.012, 'H': 0.058, 'I': 0.051, 'J': 0.069, 'K': 0.019, 'L': 0.042, 'N': 0.216, 'O': 0.030, 'P': 0.117, 'T': 0.285, 'V': 0.102, 'W': 0.085, 'X': 0.043, 'Y': 0.028}
+# bold: target gap 0.116 em
+ITALIC_BOLD = {'B': 0.028, 'C': 0.037, 'D': 0.012, 'E': 0.009, 'F': 0.118, 'H': 0.060, 'I': 0.063, 'J': 0.124, 'M': 0.059, 'N': 0.105, 'O': 0.031, 'P': 0.109, 'S': 0.020, 'T': 0.205, 'U': 0.124, 'V': 0.268, 'W': 0.222, 'X': 0.038, 'Y': 0.221, 'Z': 0.030, 'b': 0.009, 'f': 0.230, 'g': 0.039, 'j': 0.020, 'r': 0.123, 't': 0.025, 'v': 0.010, 'w': 0.007, 'x': 0.013, 'y': 0.017, 'gamma': 0.063, 'pi': 0.006, 'sigma': 0.150, 'tau': 0.061, 'varpi': 0.092, 'varsigma': 0.008, 'partial': 0.006}
+UPRIGHT_BOLD = {'D': 0.015, 'F': 0.076, 'J': 0.068, 'N': 0.042, 'O': 0.022, 'P': 0.089, 'T': 0.106, 'U': 0.084, 'V': 0.172, 'W': 0.147, 'Y': 0.119, 'r': 0.051, 'v': 0.086, 'w': 0.086, 'y': 0.079, 'Gamma': 0.190, 'Theta': 0.023, 'Upsilon': 0.097, 'Psi': 0.079, 'nabla': 0.136}
+
+# Slots of the stix2 fonts: Latin letters at their ASCII codes, lowercase Greek and partial in the math italic, Greek
+# capitals and nabla in the upright font
+GREEK = ('alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi pi rho sigma tau upsilon phi chi psi '
+         'omega varepsilon vartheta varpi varrho varsigma varphi').split()
+CAPGREEK = 'Gamma Delta Theta Lambda Xi Pi Sigma Upsilon Phi Psi Omega'.split()
+SLOTS = {name: 0x0B + i for i, name in enumerate(GREEK)}
+SLOTS.update({name: i for i, name in enumerate(CAPGREEK)})
+SLOTS.update(partial=0x29, nabla=0x28)
+
+FONTS = [  # (stix2 font, shifts, output name)
+    ('stix2-mathit', ITALIC, 'newchet-stix2-mathit'),
+    ('stix2-mathit-bold', ITALIC_BOLD, 'newchet-stix2-mathit-bold'),
+    ('stix2-mathrm', UPRIGHT, 'newchet-stix2-mathrm'),
+    ('stix2-mathrm-bold', UPRIGHT_BOLD, 'newchet-stix2-mathrm-bold'),
+    ('stix2-mathcal', CALLIGRAPHIC, 'newchet-stix2-mathcal'),
 ]
-# Letters that keep the metrics of stix2 (see the docstring)
-SKIP = {'newchet-stix2-mathit': 'ag'}
-# Subscript shifts of the calligraphic capitals, in em (see the docstring)
-CAL_SHIFT = {'F': 0.165, 'I': 0.034, 'J': 0.033, 'N': 0.146, 'P': 0.087, 'T': 0.261, 'V': 0.079, 'W': 0.058}
 
 
 def run(*args, **kw):
@@ -83,44 +91,16 @@ def code(tok):
     return ord(val) if kind == 'C' else int(val, 8)
 
 
-def side_bearings(pfb):
-    """Left side bearing of every glyph of a Type 1 font, in font units, keyed by glyph name."""
-    text = run('t1disasm', kpse(pfb))
-    out, cur = {}, None
-    for line in text.split('\n'):
-        m = re.match(r'^/([A-Za-z0-9_.]+) \{$', line)
-        if m:
-            cur = m.group(1)
-        elif cur and line.strip().endswith('hsbw'):
-            out[cur] = int(line.split()[0])
-            cur = None
-    return out
+def slot(name):
+    return SLOTS[name] if name in SLOTS else ord(name)
 
 
-def glyph(first_capital, first_small, ch):
-    """Unicode glyph name of a math italic letter; italic small h is U+210E."""
-    cp = (first_capital + ord(ch) - 65) if ch.isupper() else (first_small + ord(ch) - 97)
-    return 'uni210E' if cp == 0x1D455 else 'u%X' % cp
-
-
-def italic_shifts(base, ref, base_pfb, ref_pfb, cap, small, name):
-    """Subscript shift of each letter of the math italic base, from the reference font of SticksToo."""
-    mb, mr = metrics(pl_of(base)), metrics(pl_of(ref))
-    lb, lr = side_bearings(base_pfb), side_bearings(ref_pfb)
-    shift = {}
-    for ch in [chr(c) for c in range(65, 91)] + [chr(c) for c in range(97, 123)]:
-        g = glyph(cap, small, ch)
-        (wb, _), (wr, _) = mb[ord(ch)], mr[ord(ch)]
-        d = round((wb - lb[g] / 1000) - (wr - lr[g] / 1000), 4)
-        if d > 0.0005 and ch not in SKIP.get(name, ''):
-            shift[ord(ch)] = d
-    return shift
-
-
-def build(base, shift, name):
-    """Write name.vf and name.tfm: the font base, with the subscripts of the characters in shift moved left by the
+def build(base, table, name):
+    """Write name.vf and name.tfm: the font base, with the subscripts of the characters in table moved left by the
     amounts given in em."""
+    shift = {slot(n): d for n, d in table.items()}
     pl = pl_of(base)
+    assert '(LIGTABLE' in pl, base
     mb = metrics(pl)
     checksum = re.search(r'\(CHECKSUM (O \d+)\)', pl).group(1)
     vpl = re.sub(r'\(CHECKSUM O \d+\)\n', '', pl)
@@ -149,9 +129,8 @@ def build(base, shift, name):
         src = os.path.join(d, name + '.vpl')
         open(src, 'w').write(vpl)
         run('vptovf', src, os.path.join(HERE, name + '.vf'), os.path.join(HERE, name + '.tfm'))
-    print('%s: subscript shifts (em) %s' % (name, ' '.join('%s %.3f' % (chr(c), d) for c, d in sorted(shift.items()))))
+    print('%s: subscript shifts (em) %s' % (name, ' '.join('%s %.3f' % (n, d) for n, d in table.items())))
 
 
-for base, ref, base_pfb, ref_pfb, cap, small, name in FONTS:
-    build(base, italic_shifts(base, ref, base_pfb, ref_pfb, cap, small, name), name)
-build('stix2-mathcal', {ord(c): d for c, d in CAL_SHIFT.items()}, 'newchet-stix2-mathcal')
+for base, table, name in FONTS:
+    build(base, table, name)
