@@ -14,11 +14,13 @@
 %
 % Install into the personal tree so that it works from any directory:
 %   ~/Library/texmf/tex/latex/newchet/newchet.sty
-% With stix2, newchet also uses five virtual fonts, which bring subscripts closer to italic,
-% upright and calligraphic letters.  They go into the same tree, or into the document folder:
-%   ~/Library/texmf/fonts/tfm/newchet/newchet-stix2-{mathit,mathit-bold,mathrm,mathrm-bold,mathcal}.tfm
-%   ~/Library/texmf/fonts/vf/newchet/newchet-stix2-{mathit,mathit-bold,mathrm,mathrm-bold,mathcal}.vf
-% make install-newchet in the chet repository installs all eleven files (into ~/texmf on Linux).
+% With stix2, newchet also uses six virtual fonts.  Five bring subscripts closer to italic,
+% upright and calligraphic letters.  The sixth, newchet-stix2-mathsfit, centres accents over
+% the sans-serif italic letters of \mathsfit.  They go into the same tree, or into the
+% document folder:
+%   ~/Library/texmf/fonts/tfm/newchet/newchet-stix2-{mathit,mathit-bold,mathrm,mathrm-bold,mathcal,mathsfit}.tfm
+%   ~/Library/texmf/fonts/vf/newchet/newchet-stix2-{mathit,mathit-bold,mathrm,mathrm-bold,mathcal,mathsfit}.vf
+% make install-newchet in the chet repository installs all thirteen files (into ~/texmf on Linux).
 %
 % Options
 %   nobib        do not load biblatex (use with revtex, bst files, or no bibliography)
@@ -41,13 +43,15 @@
 %   newtxgreek   take the math Greek letters from newtxmath, e.g. with stix2; newtx has them already
 %   nosubscriptkerns  with stix2, keep the subscript placement of the stix2 package instead of
 %                that of newchet's virtual fonts (see the font setup below)
+%   noaccentkerns  with stix2, keep the accent placement of the stix2 package on the
+%                sans-serif italic letters instead of that of newchet's virtual font
 %   fontsize=11.5pt  body size for article, report or book, which only offer 10pt, 11pt and
 %                12pt; the 11pt sizes and spacings are scaled to match
 % Any other option is handed to biblatex, e.g. \usepackage[backend=bibtex]{newchet}.
 % The margins can still be changed afterwards with \geometry{margin=3cm}.
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{newchet}[2026/11/10 v1.0 personal article style with chetref-like bibliography]
+\ProvidesPackage{newchet}[2026/11/11 v1.0 personal article style with chetref-like bibliography]
 
 \newif\ifnewchet@bib        \newchet@bibtrue
 \newif\ifnewchet@geometry   \newchet@geometrytrue
@@ -58,6 +62,7 @@
 \newif\ifnewchet@theorems   \newchet@theoremstrue
 \newif\ifnewchet@ntxgreek   \newchet@ntxgreekfalse
 \newif\ifnewchet@subkerns   \newchet@subkernstrue
+\newif\ifnewchet@acckerns   \newchet@acckernstrue
 \def\newchet@fonts{cm}
 \let\newchet@size\@empty
 
@@ -72,6 +77,7 @@
 \DeclareOption{stix2}{\def\newchet@fonts{stix2}}
 \DeclareOption{newtxgreek}{\newchet@ntxgreektrue}
 \DeclareOption{nosubscriptkerns}{\newchet@subkernsfalse}
+\DeclareOption{noaccentkerns}{\newchet@acckernsfalse}
 % fontsize=<size> is caught here; every other unknown option goes to biblatex
 \DeclareOption*{\expandafter\newchet@option\CurrentOption=\@nil}
 \def\newchet@option#1=#2\@nil{%
@@ -213,33 +219,39 @@
     % kpsewhich looks up a name ending in .vf on OVFFONTS, the path of Omega's virtual
     % fonts, and not on VFFONTS, which pdfTeX uses and make newchet-subscripts-test sets.
     % If kpsewhich cannot run, only the document folder is checked, since it is on every
-    % font path.  All ten files must be found, or the fonts are not used.
-    \ifnewchet@subkerns
-      \def\newchet@subfonts{newchet-stix2-mathit.tfm,newchet-stix2-mathit.vf,%
-        newchet-stix2-mathit-bold.tfm,newchet-stix2-mathit-bold.vf,%
-        newchet-stix2-mathrm.tfm,newchet-stix2-mathrm.vf,%
-        newchet-stix2-mathrm-bold.tfm,newchet-stix2-mathrm-bold.vf,%
-        newchet-stix2-mathcal.tfm,newchet-stix2-mathcal.vf}
-      \def\newchet@found{0}
-      % One line of output for each file kpsewhich finds; \readline takes the paths verbatim
-      \def\newchet@countlines{%
-        \readline\@inputcheck to\newchet@tempa
-        \ifx\newchet@tempa\@empty\else\xdef\newchet@found{\the\numexpr\newchet@found+1}\fi
-        \ifeof\@inputcheck\else\expandafter\newchet@countlines\fi}
-      \def\newchet@kpsewhich#1{%
-        \begingroup
-          \endlinechar\m@ne
-          \openin\@inputcheck=|"kpsewhich -format=#1 newchet-stix2-mathit newchet-stix2-mathit-bold newchet-stix2-mathrm newchet-stix2-mathrm-bold newchet-stix2-mathcal"
-          \ifeof\@inputcheck\else\newchet@countlines\fi
-          \closein\@inputcheck
-        \endgroup}
+    % font path.  \newchet@findfonts{<fonts>} takes the names of virtual fonts, separated by
+    % commas, and sets \newchet@found to the number of their .tfm and .vf files it finds.
+    % One line of output for each file kpsewhich finds; \readline takes the paths verbatim
+    \def\newchet@countlines{%
+      \readline\@inputcheck to\newchet@tempa
+      \ifx\newchet@tempa\@empty\else\xdef\newchet@found{\the\numexpr\newchet@found+1}\fi
+      \ifeof\@inputcheck\else\expandafter\newchet@countlines\fi}
+    % \newchet@tempb holds the names of the fonts, each with a space before it
+    \def\newchet@kpsewhich#1{%
+      \begingroup
+        \endlinechar\m@ne
+        \openin\@inputcheck=|"kpsewhich -format=#1\newchet@tempb"
+        \ifeof\@inputcheck\else\newchet@countlines\fi
+        \closein\@inputcheck
+      \endgroup}
+    \def\newchet@findfonts#1{%
+      \let\newchet@tempb\@empty
+      \@tempcnta\z@
+      \@for\newchet@tempa:=#1\do{%
+        \edef\newchet@tempb{\newchet@tempb\space\newchet@tempa}\advance\@tempcnta\tw@}%
+      \gdef\newchet@found{0}%
       \newchet@kpsewhich{tfm}%
       \newchet@kpsewhich{vf}%
-      \ifnum\newchet@found<10
-        \def\newchet@found{0}
-        \@for\newchet@tempa:=\newchet@subfonts\do{%
-          \IfFileExists{./\newchet@tempa}{\xdef\newchet@found{\the\numexpr\newchet@found+1}}{}}%
-      \fi
+      \ifnum\newchet@found<\@tempcnta
+        \gdef\newchet@found{0}%
+        \@for\newchet@tempa:=#1\do{%
+          \IfFileExists{./\newchet@tempa.tfm}{\xdef\newchet@found{\the\numexpr\newchet@found+1}}{}%
+          \IfFileExists{./\newchet@tempa.vf}{\xdef\newchet@found{\the\numexpr\newchet@found+1}}{}}%
+      \fi}
+    % All ten files of the subscript fonts must be found, or the fonts are not used.
+    \ifnewchet@subkerns
+      \newchet@findfonts{newchet-stix2-mathit,newchet-stix2-mathit-bold,%
+        newchet-stix2-mathrm,newchet-stix2-mathrm-bold,newchet-stix2-mathcal}%
       \ifnum\newchet@found=10
         \input{ls1stix2.fd}%
         \DeclareFontShape{LS1}{stix2}{m}{it}{<-> newchet-stix2-mathit}{}%
@@ -256,6 +268,33 @@
           \MessageBreak the stix2 package.  Install the fonts, or use the%
           \MessageBreak option nosubscriptkerns.  If kpsewhich cannot run,%
           \MessageBreak newchet only looks in the document folder}%
+      \fi
+    \fi
+    % TeX centres an accent over a single letter at half of the letter's width plus italic
+    % correction.  It then moves the accent right by the kern of the letter with the skew
+    % character of its font.  In stix2-mathsfit, the regular sans-serif italic of \mathsfit,
+    % these kerns are too large.  An accent sits 0.100em to the right of the top of its
+    % letter, in the median over the 52 Latin letters, and 0.162em for G.  So the hat of
+    % \hat{\mathsfit{G}} sits near the right edge of G.  The bold font stix2-mathsfit-bold
+    % and the upright sans-serif fonts are sound.  The virtual font newchet-stix2-mathsfit
+    % draws the same glyphs at the same places, with the same widths and italic corrections.
+    % It changes only the kerns of the 52 Latin letters and of the dotless i and j with the
+    % skew character, and the font has no other kerns.  So only accents move.  Subscripts,
+    % superscripts and the arrows that stix2 takes from this font keep their places.  Each
+    % regular letter gets its accent where the bold letter has it, measured from the centre
+    % of the top of the ink.  newchet-accents-measure.py measures the kerns and
+    % newchet-accents.py makes the font.  Both of its files must be found, or it is not used.
+    \ifnewchet@acckerns
+      \newchet@findfonts{newchet-stix2-mathsfit}%
+      \ifnum\newchet@found=2
+        \input{ls1stix2sf.fd}%
+        \DeclareFontShape{LS1}{stix2sf}{m}{it}{<-> newchet-stix2-mathsfit}{}%
+      \else
+        \PackageWarningNoLine{newchet}{the virtual font newchet-stix2-mathsfit was not%
+          \MessageBreak found, so accents on sans-serif italic letters keep%
+          \MessageBreak the placement of the stix2 package.  Install the%
+          \MessageBreak font, or use the option noaccentkerns.  If kpsewhich%
+          \MessageBreak cannot run, newchet only looks in the document folder}%
       \fi
     \fi
   \fi

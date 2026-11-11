@@ -2,7 +2,7 @@
 
 All notable changes to the chet package are recorded here.
 
-## [newchet 1.0] — 2026-11-10
+## [newchet 1.0] — 2026-11-11
 
 - Added `newchet/newchet.sty`, a new version of chet built on current packages: biblatex replaces `chetref.bst` with a chetref-like style, titlesec sets the headings, and hyperref, geometry, tocloft and microtype are configured
 - The bibliography reproduces every case of `test/chetref_test.tex`: collaborations, et al. without a comma, `arXiv:` prefixes, editions, Master's theses, grouped citations via `\mcite` and JHEP DOI inference; JHEP DOIs are inferred for all years (IOP up to 2008, Springer from 2009), not only those starting 199 or 201
@@ -26,6 +26,9 @@ All notable changes to the chet package are recorded here.
 - The amounts were measured from the ink of each letter with 180 subscripts. They bring the subscripts a, n and i to the median gap of the italic lowercase letters, unless another subscript would then come closer to the letter than to any italic capital of stix2. The subscript of italic V moves by 0.247em, that of ∇ by 0.206em, and that of calligraphic T most, by 0.285em
 - newchet uses these fonts when kpsewhich finds all ten files, or when all ten are in the document folder. Otherwise it keeps the subscript placement of the stix2 package and warns. The option `nosubscriptkerns` keeps that placement without a warning
 - `newchet/newchet-subscripts.py` makes the fonts, and `make newchet-fonts` runs it. `newchet/newchet-subscripts-measure.py` measures the amounts. `make install-newchet` copies the fonts and `newchet.sty` into the personal TeX tree. `test/newchet_subscripts_test.tex` sets the letters both ways, and `make newchet-subscripts-test` builds it
+- With `stix2`, accents sit over the sans-serif italic letters of `\mathsfit`. The stix2 package sets them 0.100em to the right of the top of the letter, in the median over the 52 Latin letters, and 0.162em for G, so the hat of `\hat{\mathsfit{G}}` sat near the right edge of G. The kerns of these letters with the skew character are too large in its regular font `stix2-mathsfit`, while those of the bold font are sound. The virtual font `newchet-stix2-mathsfit` draws the same glyphs with the same metrics and changes only these 54 kerns, for the 52 Latin letters and the dotless i and j. So only accents move, by 0.078em in the median. Each accent sits where the bold letter has it, measured from the centre of the top of the ink
+- newchet uses this font when kpsewhich finds its two files, or when both are in the document folder, independently of the subscript fonts. Otherwise it keeps the accent placement of the stix2 package and warns. The option `noaccentkerns` keeps that placement without a warning
+- `newchet/newchet-accents-measure.py` measures the kerns and `newchet/newchet-accents.py` makes the font. `make newchet-fonts` runs it too, and `make install-newchet` installs the font. `test/newchet_accents_test.tex` sets accented letters both ways, and `make newchet-accents-test` builds it
 - Of `newtx` and `stix2`, the last one given now wins, as documented. `\ProcessOptions*` takes the options in the order given. Before, `stix2` always won
 - Option `fontsize=<size>` sets any body size with `article`, `report` or `book`, by scaling the sizes and spacings of the 11pt class option
 - Options `nobib`, `nogeometry`, `nohyperref`, `notoc`, `notitlesec`, `notitlepage` and `notheorems`; incompatible parts are switched off automatically for the AMS, revtex, memoir and KOMA classes. With `nohyperref`, the DOI and arXiv references are printed without links, unless the document loads hyperref itself

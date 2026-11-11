@@ -1,0 +1,143 @@
+% newchet_accents_test.tex
+% Test file for the accent placement of newchet.sty with the stix2 option.  Each pair of
+% lines sets the same accented letters, first in the sans-serif italic font of the stix2
+% package and then in newchet's virtual font.  Only the accents should move.  The letters,
+% their subscripts and superscripts and the arrows of the font keep their places.  The first
+% paragraph names the font in use, which is newchet-stix2-mathsfit when newchet finds its
+% virtual font.
+% Compile with: make newchet-accents-test
+% or, from this folder: TEXINPUTS=../newchet: TFMFONTS=../newchet: VFFONTS=../newchet: latexmk -pdf newchet_accents_test
+% Without the three variables, it tests the installed newchet.sty and fonts.
+
+\documentclass[11pt]{article}
+\usepackage[stix2,nobib,notitlepage,notoc]{newchet}
+
+% The sans-serif italic of the stix2 package, under a family name of its own
+\DeclareFontFamily{LS1}{stix2sforig}{\skewchar\font127 }
+\DeclareFontShape{LS1}{stix2sforig}{m}{it}{<-> stix2-mathsfit}{}
+\DeclareFontShape{LS1}{stix2sforig}{b}{it}{<-> stix2-mathsfit-bold}{}
+\DeclareMathAlphabet{\stixsfit}{LS1}{stix2sforig}{m}{it}
+\SetMathAlphabet{\stixsfit}{bold}{LS1}{stix2sforig}{b}{it}
+
+% The formulas, for a letter #1
+\newcommand*{\pathat}[1]{\hat{#1}}
+\newcommand*{\pattilde}[1]{\tilde{#1}}
+\newcommand*{\patbar}[1]{\bar{#1}}
+\newcommand*{\patdot}[1]{\dot{#1}}
+\newcommand*{\patvec}[1]{\vec{#1}}
+\newcommand*{\patwidetilde}[1]{\widetilde{#1}}
+\newcommand*{\patwidehat}[1]{\widehat{#1}}
+\newcommand*{\patdouble}[1]{\hat{\hat{#1}}}
+\newcommand*{\patscripts}[1]{\widetilde{#1}_{IJ}^{2}}
+\newcommand*{\patplain}[1]{#1_i^2}
+\newcommand*{\pattwice}[1]{#1#1}
+\makeatletter
+% \pair\pat{letters}: the sans-serif italic letters set with \pat, in the stix2 font and
+% then in the font in use
+\newcommand*{\pair}[2]{%
+  \par\noindent\makebox[4.5em][l]{stix2}\@tfor\next:=#2\do{\(#1{\stixsfit{\next}}\)\quad}%
+  \par\nopagebreak\noindent\makebox[4.5em][l]{newchet}\@tfor\next:=#2\do{\(#1{\mathsfit{\next}}\)\quad}%
+  \par\smallskip}
+% \moves{letters}: how far the accent of each letter moves to the left in the font in use,
+% in thousandths of an em of the font, which is the font size.  It is the difference of the
+% kerns of the letter with the skew character, character 127, in the two fonts.
+% \movecode{code}{label} does the same for the character with the given code.
+\newcommand*{\moves}[1]{%
+  \@tfor\next:=#1\do{\expandafter\movecode\expandafter{\expandafter`\next}{\next}}}
+\newcommand*{\movecode}[2]{%
+  \setbox0\hbox{\usefont{LS1}{stix2sforig}{m}{it}\char#1\char127}%
+  \setbox2\hbox{\usefont{LS1}{stix2sf}{m}{it}\char#1\char127}%
+  #2\,\the\numexpr\dimexpr\wd0-\wd2\relax*1000/\dimexpr\f@size\p@\relax\relax\quad}
+% \widths\pat{letters}: how much narrower each formula is in the font in use, in thousandths
+% of an em
+\newcommand*{\widths}[2]{%
+  \@tfor\next:=#2\do{%
+    \setbox0\hbox{\(#1{\stixsfit{\next}}\)}\setbox2\hbox{\(#1{\mathsfit{\next}}\)}%
+    \next\,\the\numexpr\dimexpr\wd0-\wd2\relax*1000/\dimexpr\f@size\p@\relax\relax\quad}}
+% \slots{codes}: the same for the characters with the given codes, such as the arrows that
+% the stix2 package takes from this font
+\newcommand*{\slots}[1]{%
+  \@for\next:=#1\do{%
+    \setbox0\hbox{\usefont{LS1}{stix2sforig}{m}{it}\char\next}%
+    \setbox2\hbox{\usefont{LS1}{stix2sf}{m}{it}\char\next}%
+    \copy2\,\the\numexpr\dimexpr\wd0-\wd2\relax*1000/\dimexpr\f@size\p@\relax\relax\quad}}
+\makeatother
+
+\begin{document}
+\raggedright
+
+\section*{Accents with the stix2 option of newchet}
+
+The sans-serif italic in use should be \texttt{newchet-stix2-mathsfit}, or \texttt{stix2-mathsfit} with the option \texttt{noaccentkerns}.  In bold math it should be \texttt{stix2-mathsfit-bold}.  It is
+
+\noindent\(\hbox{\ttfamily\fontname\textfont\csname symarrows2\endcsname}\) in normal math,
+
+\noindent{\boldmath\(\hbox{\ttfamily\fontname\textfont\csname symarrows2\endcsname}\)} in bold math.
+
+\subsection*{Hats and wide tildes}
+
+Each accent should sit over the top of its letter, a little to the right of its centre.
+
+\pair\pathat{ABCDEFGHIJKLM}
+\pair\pathat{NOPQRSTUVWXYZ}
+\pair\pathat{abcdefghijklm}
+\pair\pathat{nopqrstuvwxyz}
+\pair\patwidetilde{ABCDEFGHIJKLM}
+\pair\patwidetilde{NOPQRSTUVWXYZ}
+\pair\patwidetilde{abcdefghijklm}
+\pair\patwidetilde{nopqrstuvwxyz}
+
+\subsection*{Other accents, the dotless letters and double accents}
+
+\pair\pattilde{AGLSTVYadfgt\imath\jmath}
+\pair\patbar{AGLSTVYadfgt\imath\jmath}
+\pair\patdot{AGLSTVYadfgt\imath\jmath}
+\pair\patvec{AGLSTVYadfgt\imath\jmath}
+\pair\patwidehat{AGLSTVYadfgt\imath\jmath}
+\pair\patdouble{AGLSTVYadfgt\imath\jmath}
+
+\subsection*{Bold}
+
+In bold math both lines use the bold font of the stix2 package, so they should agree.  Its accents are where newchet puts those of the regular font.
+
+{\boldmath
+\pair\pathat{ABCDEFGHIJKLM}
+\pair\pathat{NOPQRSTUVWXYZ}
+\pair\pathat{abcdefghijklm}
+\pair\pathat{nopqrstuvwxyz}
+\pair\patwidetilde{AGLSTVYadfgt\imath\jmath}
+}
+
+\subsection*{Accents with scripts, letters with scripts and pairs}
+
+The letters and their scripts should not move.  With an accent and scripts, only the accent should move.
+
+\pair\patscripts{AGLSTVYadfgt}
+\pair\patplain{AGLSTVYadfgt}
+\pair\pattwice{AGLSTVYadfgt}
+
+\subsection*{Arrows}
+
+The stix2 package takes these arrows from the sans-serif italic font.  They should be arrows, not letters or boxes.
+
+\noindent\(A\Mapsto B\Mapsfrom C\dashrightarrow D\dashleftarrow E\LLeftarrow F\RRightarrow G\nvLeftarrow H\nvRightarrow I\nvLeftrightarrow J\leftthreearrows K\twoheadmapsto L\)
+
+\subsection*{Moves}
+
+How far each accent moves to the left, in thousandths of an em.  With the option \texttt{noaccentkerns} all show 0.
+
+\noindent\moves{ABCDEFGHIJKLMNOPQRSTUVWXYZ}
+
+\noindent\moves{abcdefghijklmnopqrstuvwxyz}\movecode{123}{\(\mathsfit{\imath}\)}\movecode{124}{\(\mathsfit{\jmath}\)}
+
+The same for the widths of letters with scripts, of pairs and of accented letters, and for the arrows with the codes 42, 91, 125, 126 and 153 to 168.  All should show 0.
+
+\noindent\widths\patplain{ABCDEFGHIJKLMNOPQRSTUVWXYZ}
+
+\noindent\widths\patplain{abcdefghijklmnopqrstuvwxyz}
+
+\noindent\widths\pattwice{AGLSTVYadfgt}\quad\widths\pathat{AGLSTVYadfgt}\quad\widths\patscripts{AGLSTVYadfgt}
+
+\noindent\slots{42,91,125,126,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168}
+
+\end{document}
