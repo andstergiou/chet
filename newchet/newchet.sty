@@ -3,13 +3,16 @@
 %   \documentclass[11pt,a4paper]{article}
 %   \usepackage{newchet}
 %   \addbibresource{bibliography.bib}
-%   \preprint{...}  \title{...}  \author{...\email{...}}  \affiliation{...}  \abstract{...}
+%   \preprint{...}  \title{...}  \author{...}  \affiliation{...}  \email{...}  \abstract{...}
 %   \begin{document} \maketitle ... \printbibliography \end{document}
 %
 % The title page imitates chet.sty: preprint number top right, a large title, authors,
 % affiliations in italics, the abstract, and the date (month and year) bottom left.
 % \preprint, \affiliation and \abstract{...} go in the preamble.  \date{...} overrides the
-% date.  Emails are footnotes: \email{...} side by side, \emailV{...} one below the other,
+% date.  \email{...} prints the emails, linked but in black, in a line between the
+% affiliations and the abstract.  It takes one address or several separated by commas, and
+% can be repeated.  The printed emails are separated by centred dots, or by commas with
+% \email[commas]{...}.  Emails can be footnotes instead: \emailV{...} one below the other,
 % \emails{...} all in one unmarked footnote.  Use $\titlemath{...}$ for math in the title.
 %
 % Install into the personal tree so that it works from any directory:
@@ -24,6 +27,7 @@
 %
 % Options
 %   nobib        do not load biblatex (use with revtex, bst files, or no bibliography)
+%   justifiedbib  set the bibliography justified instead of ragged right
 %   nogeometry   do not load geometry (the class or another package sets the margins)
 %   nohyperref   do not load hyperref
 %   notoc        do not load tocloft or reformat the table of contents
@@ -54,6 +58,7 @@
 \ProvidesPackage{newchet}[2026/11/11 v1.0 personal article style with chetref-like bibliography]
 
 \newif\ifnewchet@bib        \newchet@bibtrue
+\newif\ifnewchet@raggedbib  \newchet@raggedbibtrue
 \newif\ifnewchet@geometry   \newchet@geometrytrue
 \newif\ifnewchet@hyperref   \newchet@hyperreftrue
 \newif\ifnewchet@toc        \newchet@toctrue
@@ -67,6 +72,7 @@
 \let\newchet@size\@empty
 
 \DeclareOption{nobib}{\newchet@bibfalse}
+\DeclareOption{justifiedbib}{\newchet@raggedbibfalse}
 \DeclareOption{nogeometry}{\newchet@geometryfalse}
 \DeclareOption{nohyperref}{\newchet@hyperreffalse}
 \DeclareOption{notoc}{\newchet@tocfalse}
@@ -561,13 +567,59 @@
 \date{\ifcase\month\or January\or February\or March\or April\or May\or June\or July\or
   August\or September\or October\or November\or December\fi\space\number\year}
 
-% Emails as footnotes on the title page
 \providecommand*{\newchet@mailto}[1]{%
   \@ifundefined{href}{\texttt{#1}}{\href{mailto:#1}{\texttt{#1}}}}
-% Side by side
-\SetFootnoteHook{\noindent\hspace{-5pt}}
-\DeclareNewFootnote[para]{E}[roman]
-\newcommand*{\email}[1]{\footnoteE{\newchet@mailto{#1}}}
+
+% Emails between the affiliations and the abstract.  \email{...} takes one address or
+% several separated by commas.  It can be used more than once, in the preamble or inside
+% \author.  The addresses are printed together in a centred block.  The optional argument
+% picks what separates them: dots, the default, or commas.  The last one given holds for
+% the whole block.
+\gdef\newchet@emails{}
+\newcommand*{\email}[2][]{%
+  \ifx\relax#1\relax\else
+    \@ifundefined{newchet@emailsep@#1}{%
+      \PackageError{newchet}{Unknown email separator `#1'}%
+        {Use \string\email[dots]{...} or \string\email[commas]{...}.}}{%
+      \global\expandafter\let\expandafter\newchet@emailsepchoice
+        \csname newchet@emailsep@#1\endcsname}%
+  \fi
+  \@for\newchet@emailtmp:=#2\do{%
+    % Addresses contain no spaces, so drop the ones around the commas
+    \protected@edef\newchet@emailtmp{\expandafter\newchet@zapspace\expandafter{\newchet@emailtmp}}%
+    \ifx\newchet@emailtmp\@empty\else
+      \expandafter\newchet@addemail\expandafter{\newchet@emailtmp}%
+    \fi}}
+\newcommand*{\newchet@zapspace}[1]{\zap@space#1 \@empty}
+\newcommand*{\newchet@addemail}[1]{\g@addto@macro\newchet@emails{\newchet@emailitem{#1}}}
+% Every address but the first gets the separator before it.  A line may break at a dot,
+% and then the dot and its spaces are dropped.
+\newcommand*{\newchet@emailsep@dots}{\discretionary{}{}{\hbox{\enspace$\cdot$\enspace}}}
+\newcommand*{\newchet@emailsep@commas}{, }
+\let\newchet@emailsepchoice\newchet@emailsep@dots
+\newcommand*{\newchet@emailitem}[1]{%
+  \newchet@emailsep\newchet@mailto{#1}%
+  \let\newchet@emailsep\newchet@emailsepchoice}
+% The emails are black, but stay links
+\newcommand*{\newchet@blacklinks}{\@ifundefined{hypersetup}{}{\hypersetup{urlcolor=black}}}
+
+% Vertical gaps on the title page, from the baseline of one block to the top of the
+% capitals of the next.  The title gap separates the title from the authors, and the emails
+% from the abstract.  The affiliation gap separates the authors from the affiliations, and
+% the affiliations from the emails, or from the abstract when there are no emails.
+% \maketitle sets both from the body font: the title gap as three \bigskip's between two
+% lines of text, the affiliation gap as one \bigskip and 10pt.
+\newlength{\newchet@titlegap}
+\newlength{\newchet@affilgap}
+% Put the capitals of the next line #1 below the baseline of the line above.  This sets
+% \prevdepth so that the interline glue gives that distance.  Use it in vertical mode, in
+% the font and size of the next line, right before it.
+\newcommand*{\newchet@vgap}[1]{%
+  \ifdim\prevdepth>-\@m\p@
+    \prevdepth\dimexpr\prevdepth+\baselineskip-#1-\fontcharht\font`A\relax
+  \fi}
+
+% Emails as footnotes on the title page
 % One below the other
 \SetFootnoteHook{\noindent\hspace{-10pt}}
 \DeclareNewFootnote{EE}[roman]
@@ -580,7 +632,7 @@
 % Keep the emails and title commands out of the PDF metadata set by pdfusetitle
 \ifnewchet@hyperref
   \pdfstringdefDisableCommands{%
-    \def\email#1{}\def\emailV#1{}\def\emails#1{}\def\thanks#1{}%
+    \def\email#1#{\@gobble}\def\emailV#1{}\def\emails#1{}\def\thanks#1{}%
     \def\titlemath#1{#1}\def\and{, }}
 \fi
 
@@ -593,14 +645,27 @@
       \newchet@preprint
     \end{flushright}
     \vspace{2cm}
+    \normalfont
+    \setlength{\newchet@titlegap}{\dimexpr3\bigskipamount+\baselineskip-\fontcharht\font`A\relax}%
+    \setlength{\newchet@affilgap}{\dimexpr\bigskipamount+10pt+\baselineskip-\fontcharht\font`A\relax}%
     \begin{center}
       {\newchet@titlesize\newchettitlefont\@title\par}
-      \bigskip\bigskip\bigskip
+      \newchet@vgap\newchet@titlegap
       \@author\par
-      \bigskip
-      {\itshape\newchet@affiliation\par}
+      \ifx\newchet@affiliation\@empty\else
+        {\itshape\newchet@vgap\newchet@affilgap\newchet@affiliation\par}%
+      \fi
     \end{center}
-    \bigskip\bigskip
+    % Drop the space that \end{center} leaves, since the gaps below set the spacing
+    \ifdim\lastskip>\z@ \vskip-\lastskip \fi
+    \ifx\newchet@emails\@empty
+      \newchet@vgap\newchet@affilgap
+    \else
+      {\centering\small\ttfamily\newchet@blacklinks
+        \newchet@vgap\newchet@affilgap
+        \let\newchet@emailsep\@empty\newchet@emails\par}%
+      \newchet@vgap\newchet@titlegap
+    \fi
     \noindent\newchet@abstract\par
     \vfill
     \noindent\@date
@@ -667,6 +732,12 @@
 \RequirePackage[backend=biber,style=numeric-comp]{biblatex}
 
 \renewcommand*{\bibfont}{\small}
+% Extra space between entries.  biblatex copies \itemsep, 4.5pt at 11pt.
+\setlength{\bibitemsep}{2pt plus 1pt}
+% Entries are set ragged right, unless the option justifiedbib is given
+\ifnewchet@raggedbib
+  \AtBeginBibliography{\raggedright}
+\fi
 
 % The References heading is centred and set at the body size, like the Acknowledgements
 % heading, as in chet.sty.  titlesec's default shape ignores

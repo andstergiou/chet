@@ -120,8 +120,9 @@ A paper that has to compile on other computers, such as arXiv's or a co-author's
 
 \preprint{KCL-MTH-26-01}
 \title{Title}
-\author{A.~Author\email{a@example.com} \and B.~Author\email{b@example.com}}
+\author{A.~Author \and B.~Author}
 \affiliation{Department, University}
+\email{a@example.com, b@example.com}
 \abstract{The abstract.}
 
 \begin{document}
@@ -153,6 +154,7 @@ For grouped citations, load `\usepackage[mcite]{newchet}` and use biblatex's syn
 | Option | Description |
 | --- | --- |
 | `nobib` | Do not load biblatex (for revtex, `.bst` files or no bibliography) |
+| `justifiedbib` | Set the bibliography justified instead of ragged right |
 | `nogeometry` | Do not load geometry (the class or another package sets the margins) |
 | `nohyperref` | Do not load hyperref. The bibliography then has no links, unless the document loads hyperref itself |
 | `notoc` | Do not load tocloft or reformat the table of contents |
@@ -200,7 +202,7 @@ newchet uses the font only if it finds both of its files. It looks for them as i
 | `\affiliation{...}` | Affiliations, in italics below the authors |
 | `\abstract{...}` | Abstract on the title page (in the preamble) |
 | `\date{...}` | Date at the bottom left of the title page (default: current month and year) |
-| `\email{addr}` | Email footnote (horizontal layout) |
+| `\email[sep]{addrs}` | Emails in one centred line between the affiliations and the abstract, linked but in black. It takes one address or several separated by commas, and can be repeated. `sep` is `dots` (default) or `commas`, and sets what separates the printed emails |
 | `\emailV{addr}` | Email footnote (vertical layout) |
 | `\emails{addrs}` | Single email footnote with no mark |
 | `$\titlemath{...}$` | Math in the title, in the title font |

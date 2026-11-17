@@ -4,6 +4,10 @@ All notable changes to the chet package are recorded here.
 
 ## [newchet 1.0] — 2026-11-11
 
+- `\email` prints the emails in one centred line between the affiliations and the abstract instead of as footnotes. The addresses are separated by centred dots, which are dropped where the line breaks, or by commas with `\email[commas]{...}`. They stay links but are set in black. `\email` takes one address or several separated by commas, and can be used more than once, in the preamble or inside `\author`. `\emailV` and `\emails` still give footnotes
+- Bibliography entries are separated by 2pt plus 1pt of extra space instead of biblatex's default, which copies `\itemsep` (4.5pt plus 2pt minus 1pt at 11pt). `\setlength{\bibitemsep}{...}` in the preamble still overrides it
+- The bibliography is set ragged right. The option `justifiedbib` sets it justified, as before
+- The title page uses two gaps, each measured from the baseline of one block to the top of the capitals of the next. The title gap, as before three `\bigskip`s between two lines of text, separates the title from the authors and the emails from the abstract. The affiliation gap separates the authors from the affiliations, and the affiliations from the emails, or from the abstract when there are no emails. It is now one `\bigskip` and 10pt between two lines of text, 10pt more than before
 - Added `newchet/newchet.sty`, a new version of chet built on current packages: biblatex replaces `chetref.bst` with a chetref-like style, titlesec sets the headings, and hyperref, geometry, tocloft and microtype are configured
 - The bibliography reproduces every case of `test/chetref_test.tex`: collaborations, et al. without a comma, `arXiv:` prefixes, editions, Master's theses, grouped citations via `\mcite` and JHEP DOI inference; JHEP DOIs are inferred for all years (IOP up to 2008, Springer from 2009), not only those starting 199 or 201
 - `test/newchet_test.tex` and `make newchet-test` check the bibliography against the chetref cases
