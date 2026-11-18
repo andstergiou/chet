@@ -18,6 +18,10 @@
 \DeclareFontShape{LS1}{stix2sforig}{b}{it}{<-> stix2-mathsfit-bold}{}
 \DeclareMathAlphabet{\stixsfit}{LS1}{stix2sforig}{m}{it}
 \SetMathAlphabet{\stixsfit}{bold}{LS1}{stix2sforig}{b}{it}
+% The calligraphic font of the stix2 package, under a family name of its own
+\DeclareFontFamily{LS2}{stix2calorig}{\skewchar\font127 }
+\DeclareFontShape{LS2}{stix2calorig}{m}{n}{<-> stix2-mathcal}{}
+\DeclareMathAlphabet{\stixcal}{LS2}{stix2calorig}{m}{n}
 
 % The formulas, for a letter #1
 \newcommand*{\pathat}[1]{\hat{#1}}
@@ -37,6 +41,11 @@
 \newcommand*{\pair}[2]{%
   \par\noindent\makebox[4.5em][l]{stix2}\@tfor\next:=#2\do{\(#1{\stixsfit{\next}}\)\quad}%
   \par\nopagebreak\noindent\makebox[4.5em][l]{newchet}\@tfor\next:=#2\do{\(#1{\mathsfit{\next}}\)\quad}%
+  \par\smallskip}
+% \calpair\pat{letters}: the same for the calligraphic letters
+\newcommand*{\calpair}[2]{%
+  \par\noindent\makebox[4.5em][l]{stix2}\@tfor\next:=#2\do{\(#1{\stixcal{\next}}\)\quad}%
+  \par\nopagebreak\noindent\makebox[4.5em][l]{newchet}\@tfor\next:=#2\do{\(#1{\mathcal{\next}}\)\quad}%
   \par\smallskip}
 % \moves{letters}: how far the accent of each letter moves to the left in the font in use,
 % in thousandths of an em of the font, which is the font size.  It is the difference of the
@@ -139,5 +148,15 @@ The same for the widths of letters with scripts, of pairs and of accented letter
 \noindent\widths\pattwice{AGLSTVYadfgt}\quad\widths\pathat{AGLSTVYadfgt}\quad\widths\patscripts{AGLSTVYadfgt}
 
 \noindent\slots{42,91,125,126,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168}
+
+\subsection*{Calligraphic capitals}
+
+The calligraphic font of newchet moves the accents of 21 capitals, most of them to the left.  Each accent should sit near the centre of its letter, and that of \(\hat{\mathcal{I}}\) over the letter, not beyond it.  The accents of P, Q, T, W and X should not move.  With scripts, the subscripts also move closer to the letter, as in the subscript test.  With the option \texttt{nosubscriptkerns} both lines use the stix2 font.
+
+\calpair\pathat{ABCDEFGHIJKLM}
+\calpair\pathat{NOPQRSTUVWXYZ}
+\calpair\patwidetilde{ABCDEFGHIJKLM}
+\calpair\patwidetilde{NOPQRSTUVWXYZ}
+\calpair\patscripts{AEHILNSVYZ}
 
 \end{document}

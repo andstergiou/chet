@@ -18,9 +18,10 @@
 % Install into the personal tree so that it works from any directory:
 %   ~/Library/texmf/tex/latex/newchet/newchet.sty
 % With stix2, newchet also uses six virtual fonts.  Five bring subscripts closer to italic,
-% upright and calligraphic letters.  The sixth, newchet-stix2-mathsfit, centres accents over
-% the sans-serif italic letters of \mathsfit.  They go into the same tree, or into the
-% document folder:
+% upright and calligraphic letters.  The calligraphic one also moves the accents of most
+% capitals, such as the hat of \hat{\mathcal{E}}, towards the centre of the letter.  The
+% sixth, newchet-stix2-mathsfit, centres accents over the sans-serif italic letters of
+% \mathsfit.  They go into the same tree, or into the document folder:
 %   ~/Library/texmf/fonts/tfm/newchet/newchet-stix2-{mathit,mathit-bold,mathrm,mathrm-bold,mathcal,mathsfit}.tfm
 %   ~/Library/texmf/fonts/vf/newchet/newchet-stix2-{mathit,mathit-bold,mathrm,mathrm-bold,mathcal,mathsfit}.vf
 % make install-newchet in the chet repository installs all thirteen files (into ~/texmf on Linux).
@@ -46,7 +47,8 @@
 %                stix2, the last one given wins.
 %   newtxgreek   take the math Greek letters from newtxmath, e.g. with stix2; newtx has them already
 %   nosubscriptkerns  with stix2, keep the subscript placement of the stix2 package instead of
-%                that of newchet's virtual fonts (see the font setup below)
+%                that of newchet's virtual fonts (see the font setup below), and with it the
+%                accent placement of the stix2 package on the calligraphic capitals
 %   noaccentkerns  with stix2, keep the accent placement of the stix2 package on the
 %                sans-serif italic letters instead of that of newchet's virtual font
 %   fontsize=11.5pt  body size for article, report or book, which only offer 10pt, 11pt and
@@ -55,7 +57,7 @@
 % The margins can still be changed afterwards with \geometry{margin=3cm}.
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{newchet}[2026/11/11 v1.0 personal article style with chetref-like bibliography]
+\ProvidesPackage{newchet}[2026/11/18 v1.0 personal article style with chetref-like bibliography]
 
 \newif\ifnewchet@bib        \newchet@bibtrue
 \newif\ifnewchet@raggedbib  \newchet@raggedbibtrue
@@ -218,7 +220,13 @@
     % every letter with 180 subscripts (italic V: 0.247em, \gamma: 0.089em, \nabla: 0.206em).
     % They are limited so that no subscript comes closer to a letter than it comes to some
     % italic capital of stix2.  newchet-stix2-mathcal also serves bold math, since STIX Two
-    % has no bold calligraphic.  newchet-subscripts.py makes the fonts.
+    % has no bold calligraphic.  It also changes the kerns of 21 capitals with the skew
+    % character, which move an accent right from the centre of a letter.  The kerns of stix2
+    % put many accents too far right: the hat of \hat{\mathcal{E}} over the right end of the
+    % top stroke, and that of \hat{\mathcal{I}} beyond the letter.  newchet uses kerns chosen
+    % by eye, which move the accents left by up to 0.24em (for I), and those of D and O right
+    % by 0.04em.  The accents of P, Q, T, W and X keep their places.  newchet-subscripts.py
+    % makes the fonts.
     % pdfTeX loads fonts through its font paths, not through TEXINPUTS.  So \IfFileExists
     % alone cannot tell whether they will load.  kpsewhich searches the font paths, and TeX
     % Live's restricted shell escape allows it.  The calls give -format.  Without it,

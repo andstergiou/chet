@@ -12,6 +12,13 @@ correction stays the same.  So letters without a subscript, superscripts, primes
 2 sp of rounding.  Limits are the exception.  TeX offsets them by half the italic correction, so the label of
 \stackrel{*}{T} and the limits of \mathop{T}\limits move by d/2.
 
+The calligraphic font also changes the kerns of 21 capitals with the skew character, character 127.  TeX centres an
+accent over a single letter at half of the letter's width plus italic correction.  It then moves the accent right by
+this kern.  The kerns of stix2 put many accents too far right.  The hat of \hat{\mathcal{E}} sits over the right end of
+the top stroke, and that of \hat{\mathcal{I}} beyond the letter.  The kerns below were chosen by eye, from hats set in
+steps of 0.04 em around those of stix2.  They move the accents left by up to 0.24 em, for I, and those of D and O right
+by 0.04 em.  The accents of P, Q, T, W and X keep their places.
+
 The shifts below come from newchet-subscripts-measure.py, which sets every letter with 180 subscripts and measures the
 ink.  The measure is the smallest horizontal distance between the ink of a letter and that of a subscript.  d brings the
 subscripts a, n and i to the median distance of the italic lowercase letters, 0.127 em in regular and 0.116 em in bold.
@@ -36,6 +43,10 @@ CALLIGRAPHIC = {'B': 0.018, 'C': 0.041, 'D': 0.023, 'E': 0.030, 'F': 0.198, 'G':
 ITALIC_BOLD = {'B': 0.028, 'C': 0.037, 'D': 0.012, 'E': 0.009, 'F': 0.118, 'H': 0.060, 'I': 0.063, 'J': 0.124, 'M': 0.059, 'N': 0.105, 'O': 0.031, 'P': 0.109, 'S': 0.020, 'T': 0.205, 'U': 0.124, 'V': 0.268, 'W': 0.222, 'X': 0.038, 'Y': 0.221, 'Z': 0.030, 'b': 0.009, 'f': 0.230, 'g': 0.039, 'j': 0.020, 'r': 0.123, 't': 0.025, 'v': 0.010, 'w': 0.007, 'x': 0.013, 'y': 0.017, 'gamma': 0.063, 'pi': 0.006, 'sigma': 0.150, 'tau': 0.061, 'varpi': 0.092, 'varsigma': 0.008, 'partial': 0.006}
 UPRIGHT_BOLD = {'D': 0.015, 'F': 0.076, 'J': 0.068, 'N': 0.042, 'O': 0.022, 'P': 0.089, 'T': 0.106, 'U': 0.084, 'V': 0.172, 'W': 0.147, 'Y': 0.119, 'r': 0.051, 'v': 0.086, 'w': 0.086, 'y': 0.079, 'Gamma': 0.190, 'Theta': 0.023, 'Upsilon': 0.097, 'Psi': 0.079, 'nabla': 0.136}
 
+# Kerns with the skew character in em that replace those of stix2, chosen by eye
+SKEWCHAR = 0o177
+CALLIGRAPHIC_ACCENTS = {'A': 0.2165, 'B': 0.136, 'C': 0.085, 'D': 0.097, 'E': 0.112, 'F': 0.1145, 'G': 0.1155, 'H': 0.1275, 'I': 0.12, 'J': 0.1, 'K': 0.1125, 'L': 0.1235, 'M': 0.082, 'N': 0.075, 'O': 0.106, 'R': 0.1295, 'S': 0.0885, 'U': 0.05, 'V': 0.054, 'Y': 0.0755, 'Z': 0.095}
+
 # Slots of the stix2 fonts: Latin letters at their ASCII codes, lowercase Greek and partial in the math italic, Greek
 # capitals and nabla in the upright font
 GREEK = ('alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi pi rho sigma tau upsilon phi chi psi '
@@ -45,12 +56,12 @@ SLOTS = {name: 0x0B + i for i, name in enumerate(GREEK)}
 SLOTS.update({name: i for i, name in enumerate(CAPGREEK)})
 SLOTS.update(partial=0x29, nabla=0x28)
 
-FONTS = [  # (stix2 font, shifts, output name)
-    ('stix2-mathit', ITALIC, 'newchet-stix2-mathit'),
-    ('stix2-mathit-bold', ITALIC_BOLD, 'newchet-stix2-mathit-bold'),
-    ('stix2-mathrm', UPRIGHT, 'newchet-stix2-mathrm'),
-    ('stix2-mathrm-bold', UPRIGHT_BOLD, 'newchet-stix2-mathrm-bold'),
-    ('stix2-mathcal', CALLIGRAPHIC, 'newchet-stix2-mathcal'),
+FONTS = [  # (stix2 font, shifts, kerns with the skew character, output name)
+    ('stix2-mathit', ITALIC, {}, 'newchet-stix2-mathit'),
+    ('stix2-mathit-bold', ITALIC_BOLD, {}, 'newchet-stix2-mathit-bold'),
+    ('stix2-mathrm', UPRIGHT, {}, 'newchet-stix2-mathrm'),
+    ('stix2-mathrm-bold', UPRIGHT_BOLD, {}, 'newchet-stix2-mathrm-bold'),
+    ('stix2-mathcal', CALLIGRAPHIC, CALLIGRAPHIC_ACCENTS, 'newchet-stix2-mathcal'),
 ]
 
 
@@ -95,13 +106,24 @@ def slot(name):
     return SLOTS[name] if name in SLOTS else ord(name)
 
 
-def build(base, table, name):
+def build(base, table, accents, name):
     """Write name.vf and name.tfm: the font base, with the subscripts of the characters in table moved left by the
-    amounts given in em."""
+    amounts given in em, and the kerns of the characters in accents with the skew character replaced by the amounts
+    given in em."""
     shift = {slot(n): d for n, d in table.items()}
+    kern = {slot(n): k for n, k in accents.items()}
     pl = pl_of(base)
     assert '(LIGTABLE' in pl, base
     mb = metrics(pl)
+    # Each character with a new kern must have a kerning program of its own, holding its kern with the skew character
+    old = {}
+    for c, k in kern.items():
+        t = 'C %s' % chr(c)
+        pat = r'(\(LABEL %s\)\n   \(KRN O %o R )(-?[\d.]+)(\)\n   \(STOP\))' % (t, SKEWCHAR)
+        m = re.search(pat, pl)
+        assert m, '%s: %s has no kerning program of its own with the skew character' % (base, t)
+        old[c] = float(m.group(2))
+        pl = re.sub(pat, lambda m: '%s%.4f%s' % (m.group(1), k, m.group(3)), pl)
     checksum = re.search(r'\(CHECKSUM (O \d+)\)', pl).group(1)
     vpl = re.sub(r'\(CHECKSUM O \d+\)\n', '', pl)
     head = '(VTITLE %s: %s of stix2 %s, with subscripts closer to the letter)\n' % (name, base, stix2_version())
@@ -122,6 +144,9 @@ def build(base, table, name):
             else:
                 body += '\n   (CHARIC R %.4f)' % (ic + d)
             setchar += ' (MOVERIGHT R -%.4f)' % d
+        if c in kern:
+            # tftopl repeats the kerns of each character in a comment, which would now be out of date
+            body = re.sub(r'\(KRN O %o R -?[\d.]+\)' % SKEWCHAR, '(KRN O %o R %.4f)' % (SKEWCHAR, kern[c]), body)
         return '(CHARACTER %s\n%s\n   (MAP %s)\n   )' % (tok, body, setchar)
 
     vpl = re.sub(r'^\(CHARACTER (C \S|O \d+)\n(.*?)\n   \)', char, vpl, flags=re.S | re.M)
@@ -130,7 +155,9 @@ def build(base, table, name):
         open(src, 'w').write(vpl)
         run('vptovf', src, os.path.join(HERE, name + '.vf'), os.path.join(HERE, name + '.tfm'))
     print('%s: subscript shifts (em) %s' % (name, ' '.join('%s %.3f' % (n, d) for n, d in table.items())))
+    for n, k in accents.items():
+        print('%s: kern of %s with the skew character %.4f em instead of %.4f em' % (name, n, k, old[slot(n)]))
 
 
-for base, table, name in FONTS:
-    build(base, table, name)
+for base, table, accents, name in FONTS:
+    build(base, table, accents, name)
